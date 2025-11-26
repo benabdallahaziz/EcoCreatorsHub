@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Test - Liste des Artistes{% endblock %}
+
+{% block body %}
+    <div class="container test-container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <h1 class="text-center mb-5">Liste des Artistes</h1>
+
+                {% if artists|length > 0 %}
+                    <div class="row">
+                        {% for artist in artists %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">{{ artist.name }}</h5>
+                                        <p class="card-text">{{ artist.bio }}</p>
+                                        <div class="artist-details">
+                                            <p class="mb-1">
+                                                <strong>Technique écologique:</strong>
+                                                <span class="text-muted">{{ artist.ecoTechnique }}</span>
+                                            </p>
+                                            <p class="mb-1">
+                                                <strong>Certifié:</strong>
+                                                <span class="badge {{ artist.isCertified ? 'bg-success' : 'bg-warning' }}">
+                                                {{ artist.isCertified ? 'Oui' : 'Non' }}
+                                            </span>
+                                            </p>
+                                            <p class="mb-0">
+                                                <strong>Créé le:</strong>
+                                                <small class="text-muted">{{ artist.createdAt|date('d/m/Y H:i') }}</small>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center">
+                        <h4>Aucun artiste trouvé</h4>
+                        <p class="mb-0">
+                            <a href="{{ path('test_create_artist') }}" class="btn btn-primary mt-2">
+                                Créer un artiste de test
+                            </a>
+                        </p>
+                    </div>
+                {% endif %}
+
+                <div class="text-center mt-5">
+                    <a href="{{ path('test_create_artist') }}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-plus-circle"></i> Créer un artiste de test
+                    </a>
+                    <a href="{{ path('app_home') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-home"></i> Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
