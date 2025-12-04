@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Artist Created Successfully{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="alert alert-success">
+            <h2>✅ Artist Created Successfully!</h2>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Artist Details</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>ID:</strong> {{ artist.id }}</p>
+                <p><strong>Name:</strong> {{ artist.name }}</p>
+                <p><strong>Bio:</strong> {{ artist.bio }}</p>
+                <p><strong>Eco Technique:</strong> {{ artist.ecoTechnique }}</p>
+                <p><strong>Certified:</strong> {{ artist.isCertified ? 'Yes' : 'No' }}</p>
+                <p><strong>Created At:</strong> {{ artist.createdAt|date('Y-m-d H:i:s') }}</p>
+                {% if artist.user is defined and artist.user %}
+                    <p><strong>User:</strong> {{ artist.user.username }} (ID: {{ artist.user.id }})</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="{{ path('test_create_artist') }}" class="btn btn-primary">Create Another Artist</a>
+            <a href="{{ path('app_home') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+{% endblock %}

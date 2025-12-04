@@ -1,5 +1,4 @@
 <?php
-// src/Entity/CertificationRequest.php
 
 namespace App\Entity;
 
@@ -14,17 +13,28 @@ class CertificationRequest
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'text')]
+    // Description ou motivation de l'artiste
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $motivation = null;
 
-    #[ORM\Column(type: 'json')]
+    // Liens portfolio ou fichiers
+    #[ORM\Column(type: 'json', nullable: true)]
     private array $portfolio = [];
 
+    // Documents supplémentaires (CIN, preuves…)
+    #[ORM\Column(type: 'json', nullable: true)]
+    private array $documents = [];
+
+    // Statut de la demande
     #[ORM\Column(length: 20)]
-    private ?string $status = 'pending'; // 'pending', 'approved', 'rejected'
+    private ?string $status = 'pending';
+    // 'pending', 'approved', 'rejected'
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'certificationRequests')]
     #[ORM\JoinColumn(nullable: false)]

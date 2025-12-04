@@ -1,0 +1,14 @@
+<h2>Statut de votre demande</h2>
+
+{% if request is null %}
+    <p>Aucune demande trouvée.</p>
+    <a href="{{ path('artist_certification_request') }}" class="btn btn-success">Faire une demande</a>
+{% else %}
+    <p><strong>Statut :</strong> {{ request.status }}</p>
+    <p><strong>Motivation :</strong> {{ request.motivation }}</p>
+    <p><strong>Portfolio :</strong> {{ request.portfolio|join(', ') }}</p>
+
+    {% if request.status == 'pending' %}
+        <a href="{{ path('artist_certification_edit', {id: request.id}) }}" class="btn btn-warning">Modifier</a>
+    {% endif %}
+{% endif %}
