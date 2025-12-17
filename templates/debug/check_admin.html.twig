@@ -1,0 +1,33 @@
+{# templates/debug/check_admin.html.twig #}
+<!DOCTYPE html>
+<html>
+<body>
+<h1>🔍 Debug Admin Check</h1>
+
+<h2>Informations de l'utilisateur admin@test.com</h2>
+<table border="1" cellpadding="10">
+    {% for key, value in info %}
+        <tr>
+            <th>{{ key }}</th>
+            <td>
+                {% if key == 'Roles' %}
+                    {{ value|join(', ') }}
+                {% elseif key == 'Password Hash' %}
+                    <code style="word-break: break-all;">{{ value }}</code>
+                {% else %}
+                    {{ value }}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h2>Hashes de comparaison</h2>
+<p><strong>Hash actuel:</strong><br><code>{{ info['Password Hash'] }}</code></p>
+<p><strong>Hash attendu:</strong><br><code>{{ expectedHash }}</code></p>
+<p><strong>Nouveau hash généré:</strong><br><code>{{ testHash }}</code></p>
+
+<p><a href="{{ path('app_debug_fix_admin') }}">🔧 Corriger l'admin automatiquement</a></p>
+<p><a href="/login">🔐 Aller à la page de login</a></p>
+</body>
+</html>

@@ -1,0 +1,383 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques des artistes{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .stat-card {
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .progress {
+            height: 20px;
+            border-radius: 10px;
+        }
+        .technique-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('app_admin_artist_index') }}">Artistes</a>
+                        </li>
+                        <li class="breadcrumb-item active">Statistiques</li>
+                    </ol>
+                </nav>
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Statistiques des artistes
+                </h1>
+            </div>
+            <a href="{{ path('app_admin_artist_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+            </a>
+        </div>
+
+        {# Cartes de statistiques #}
+        <div class="row mb-4">
+            <div class="col-md-3 mb-4">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title opacity-75">Total artistes</h6>
+                                <h2 class="mb-0">{{ stats.total_artists }}</h2>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title opacity-75">Artistes certifiés</h6>
+                                <h2 class="mb-0">{{ stats.certified_artists }}</h2>
+                                <small class="opacity-75">
+                                    {{ stats.certified_percentage|number_format(1) }}%
+                                </small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-certificate"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card stat-card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title opacity-75">Journaux de création</h6>
+                                <h2 class="mb-0">{{ stats.total_journals }}</h2>
+                                <small class="opacity-75">
+                                    Moyenne: {{ stats.avg_journals_per_artist|number_format(1) }}
+                                </small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card stat-card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title opacity-75">Tutoriels créés</h6>
+                                <h2 class="mb-0">{{ stats.total_tutorials }}</h2>
+                                <small class="opacity-75">
+                                    Moyenne: {{ stats.avg_tutorials_per_artist|number_format(1) }}
+                                </small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            {# Graphique des inscriptions #}
+            <div class="col-lg-8 mb-4">
+                <div class="chart-container">
+                    <h5 class="mb-4">
+                        <i class="fas fa-chart-line me-2 text-primary"></i>
+                        Inscriptions par mois ({{ stats.current_year }})
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Mois</th>
+                                <th>Nouveaux artistes</th>
+                                <th>Progression</th>
+                                <th width="30%"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% set max_monthly = stats.monthly_registrations|max %}
+                            {% for month, count in stats.monthly_registrations %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ month }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                                    </td>
+                                    <td>
+                                        {% if max_monthly > 0 %}
+                                            {% set percentage = (count / max_monthly) * 100 %}
+                                            <div class="progress">
+                                                <div class="progress-bar bg-primary"
+                                                     role="progressbar"
+                                                     style="width: {{ percentage }}%"
+                                                     aria-valuenow="{{ count }}"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="{{ max_monthly }}">
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="progress">
+                                                <div class="progress-bar bg-primary"
+                                                     role="progressbar"
+                                                     style="width: 0%"
+                                                     aria-valuenow="0"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <small class="text-muted">
+                                            {% if max_monthly > 0 %}
+                                                {{ percentage|number_format(1) }}% du maximum
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </small>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        <i class="fas fa-chart-line fa-2x mb-2"></i>
+                                        <p>Aucune donnée disponible</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot class="table-secondary">
+                            <tr>
+                                <th>Total {{ stats.current_year }}</th>
+                                <th>{{ stats.yearly_registrations }}</th>
+                                <th colspan="2">
+                                    <small class="text-muted">
+                                        Moyenne mensuelle: {{ (stats.yearly_registrations / 12)|number_format(1) }}
+                                    </small>
+                                </th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {# Techniques les plus populaires #}
+            <div class="col-lg-4 mb-4">
+                <div class="chart-container">
+                    <h5 class="mb-4">
+                        <i class="fas fa-leaf me-2 text-success"></i>
+                        Techniques écologiques
+                    </h5>
+                    <div class="list-group">
+                        {% for technique in stats.top_techniques|slice(0, 8) %}
+                            <div class="list-group-item border-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-success me-2">{{ technique.count }}</span>
+                                        {{ technique.technique }}
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ (technique.count / stats.total_artists * 100)|number_format(1) }}%
+                                    </small>
+                                </div>
+                                <div class="progress mt-2" style="height: 5px;">
+                                    <div class="progress-bar bg-success"
+                                         role="progressbar"
+                                         style="width: {{ (technique.count / stats.total_artists * 100) }}%"
+                                         aria-valuenow="{{ technique.count }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="{{ stats.total_artists }}">
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4 text-muted">
+                                <i class="fas fa-leaf fa-2x mb-2"></i>
+                                <p>Aucune technique enregistrée</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if stats.top_techniques|length > 8 %}
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                + {{ stats.top_techniques|length - 8 }} autres techniques
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Artistes les plus actifs #}
+        <div class="row">
+            <div class="col-12">
+                <div class="chart-container">
+                    <h5 class="mb-4">
+                        <i class="fas fa-trophy me-2 text-warning"></i>
+                        Artistes les plus actifs
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-warning">
+                            <tr>
+                                <th>#</th>
+                                <th>Artiste</th>
+                                <th class="text-center">Statut</th>
+                                <th class="text-center">Journaux</th>
+                                <th class="text-center">Tutoriels</th>
+                                <th class="text-center">Total</th>
+                                <th>Technique</th>
+                                <th>Inscrit le</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for artist in stats.most_active_artists %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ loop.index }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                 style="width: 32px; height: 32px; color: white; font-weight: bold;">
+                                                {{ artist.name|slice(0, 2)|upper }}
+                                            </div>
+                                            <div>
+                                                <strong>{{ artist.name }}</strong>
+                                                <div class="small text-muted">
+                                                    {{ artist.user ? artist.user.email : 'Aucun utilisateur' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if artist.isCertified %}
+                                            <span class="badge bg-success">
+                                                    <i class="fas fa-certificate"></i>
+                                                </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">
+                                                    <i class="fas fa-times"></i>
+                                                </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">{{ artist.journalCount }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-warning">{{ artist.tutorialCount }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <strong>{{ artist.totalContent }}</strong>
+                                    </td>
+                                    <td>
+                                            <span class="badge bg-light text-dark border technique-badge">
+                                                {{ artist.ecoTechnique }}
+                                            </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ artist.createdAt|date('d/m/Y') }}</small>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4 text-muted">
+                                        <i class="fas fa-users fa-2x mb-2"></i>
+                                        <p>Aucun artiste actif</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Notes et informations #}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="fas fa-info-circle fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6>Informations sur les statistiques</h6>
+                            <ul class="mb-0">
+                                <li>Les données sont mises à jour en temps réel</li>
+                                <li>Les pourcentages sont calculés sur le total des artistes ({{ stats.total_artists }})</li>
+                                <li>Les statistiques incluent uniquement les artistes actifs</li>
+                                <li>Date de dernière mise à jour : {{ "now"|date('d/m/Y H:i') }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

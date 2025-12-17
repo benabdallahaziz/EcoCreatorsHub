@@ -1,0 +1,88 @@
+{# Template partagé pour les formulaires #}
+
+<div class="form-section">
+    <h4 class="mb-3">Informations de base</h4>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.name, {
+                'label': 'Nom de l\'artiste',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Nom public de l\'artiste'
+                },
+                'help': 'Ce nom sera affiché publiquement sur le site'
+            }) }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.ecoTechnique, {
+                'label': 'Technique écologique',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Ex: Recyclage, Upcycling, Zéro déchet...'
+                },
+                'help': 'Spécifiez la technique principale de l\'artiste'
+            }) }}
+        </div>
+    </div>
+</div>
+
+<div class="form-section">
+    <h4 class="mb-3">Biographie</h4>
+
+    <div class="mb-3">
+        {{ form_row(form.bio, {
+            'label': 'Biographie complète',
+            'attr': {
+                'class': 'form-control',
+                'rows': 6,
+                'placeholder': 'Décrivez en détail le parcours artistique, les techniques utilisées, l\'approche écologique...'
+            },
+            'help': 'Supporte les sauts de ligne. Cette description sera visible publiquement.'
+        }) }}
+    </div>
+</div>
+
+<div class="form-section">
+    <h4 class="mb-3">Configuration</h4>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.user, {
+                'label': 'Utilisateur associé',
+                'attr': {
+                    'class': 'form-control form-select'
+                },
+                'help': 'Sélectionnez l\'utilisateur qui sera propriétaire de ce profil artiste'
+            }) }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.profilePicture, {
+                'label': 'Photo de profil (URL)',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'https://example.com/photo.jpg'
+                },
+                'help': 'URL complète vers l\'image de profil. Laissez vide pour utiliser les initiales.'
+            }) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.isCertified, {
+                'label': false,
+                'attr': {
+                    'class': 'form-check-input',
+                    'role': 'switch'
+                },
+                'help': 'Les artistes certifiés bénéficient d\'un badge spécial et de plus de visibilité'
+            }) }}
+            <label class="form-check-label" for="{{ form.isCertified.vars.id }}">
+                <strong>Certifier cet artiste</strong>
+            </label>
+        </div>
+    </div>
+</div>

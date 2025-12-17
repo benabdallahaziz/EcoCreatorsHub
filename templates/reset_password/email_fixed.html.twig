@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Réinitialisation de mot de passe</title>
+</head>
+<body style="font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;">
+<div style="max-width:600px; margin:auto; background:white; padding:30px; border-radius:8px">
+
+    <h2 style="color:#28a745">🔐 EcoCreatorsHub</h2>
+
+    <p>Bonjour,</p>
+
+    <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
+
+    {# ⭐⭐⭐⭐ URL ABSOLUMENT FIXE - PORT 8000 GARANTI ⭐⭐⭐⭐ #}
+    {% set fixedUrl = 'http://localhost:8000/reset-password/reset/' ~ resetToken.token %}
+
+    <p style="text-align:center; margin:30px 0">
+        <a href="{{ fixedUrl }}"
+           style="background:#28a745; color:white; padding:12px 24px;
+                  text-decoration:none; border-radius:5px; font-weight:bold;">
+            Réinitialiser mon mot de passe
+        </a>
+    </p>
+
+    {# Lien textuel alternatif #}
+    <p style="background:#f8f9fa; padding:15px; border-radius:5px; word-break:break-all;">
+        <strong>Lien alternatif :</strong><br>
+        <code>{{ fixedUrl }}</code>
+    </p>
+
+    <p>
+        ⏳ Ce lien expirera dans
+        {{ resetToken.expirationMessageKey|trans(
+            resetToken.expirationMessageData,
+            'ResetPasswordBundle'
+        ) }}.
+    </p>
+
+    <p>Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>
+
+    <p style="margin-top:40px; font-size:12px; color:#777">
+        © {{ "now"|date("Y") }} EcoCreatorsHub
+    </p>
+
+</div>
+</body>
+</html>

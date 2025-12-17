@@ -1,0 +1,150 @@
+<form method="post" class="needs-validation" novalidate>
+    {# Token CSRF #}
+    <input type="hidden" name="_token" value="{{ csrf_token('user_create') }}">
+
+    <!-- INFORMATIONS PERSONNELLES -->
+    <div class="form-section mb-4">
+        <h6><i class="fas fa-id-card me-2"></i>Informations personnelles</h6>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Nom d'utilisateur *</label>
+            <input type="text"
+                   name="user[username]"
+                   class="form-control"
+                   required
+                   minlength="3"
+                   maxlength="100"
+                   pattern="^[a-zA-Z0-9_\-]+$"
+                   placeholder="ex: aziz_benabdallah"
+                   value="{{ user.username|default('') }}">
+            <div class="invalid-feedback">
+                Minimum 3 caractères (lettres, chiffres, tirets ou underscores).
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Email *</label>
+            <input type="email"
+                   name="user[email]"
+                   class="form-control"
+                   required
+                   placeholder="ex: utilisateur@domaine.com"
+                   value="{{ user.email|default('') }}">
+            <div class="invalid-feedback">
+                Veuillez entrer un email valide.
+            </div>
+        </div>
+    </div>
+
+    <!-- SÉCURITÉ -->
+    <div class="form-section mb-4">
+        <h6><i class="fas fa-shield-alt me-2"></i>Sécurité</h6>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Mot de passe</label>
+            <div class="password-container">
+                <input type="password"
+                       name="user[plainPassword]"
+                       id="password"
+                       class="form-control"
+                       minlength="12"
+                       placeholder="Laissez vide si vous ne voulez pas changer">
+                <button type="button" class="password-toggle" id="toggle-password">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Confirmer le mot de passe</label>
+            <div class="password-container">
+                <input type="password"
+                       name="user[confirmPassword]"
+                       id="confirm_password"
+                       class="form-control"
+                       placeholder="Répétez le mot de passe si changé">
+                <button type="button" class="password-toggle" id="toggle-confirm-password">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <div class="invalid-feedback" id="confirmPasswordFeedback">
+                Les mots de passe ne correspondent pas.
+            </div>
+        </div>
+    </div>
+
+    <!-- RÔLES ET STATUT -->
+    <div class="form-section mb-4">
+        <h6><i class="fas fa-user-tag me-2"></i>Rôles et statut</h6>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Rôles supplémentaires</label>
+            <div class="border rounded p-3 bg-light">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" checked disabled>
+                    <label class="form-check-label">
+                        <span class="badge bg-secondary">UTILISATEUR</span>
+                        <small class="text-muted">(Rôle de base requis)</small>
+                    </label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="user[roles][]"
+                           value="ROLE_ADMIN"
+                           id="role_admin"
+                            {{ 'ROLE_ADMIN' in user.roles|default([]) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="role_admin">
+                        <span class="badge bg-danger">ADMINISTRATEUR</span>
+                        <small class="text-muted ms-2">Accès complet à l'administration</small>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="user[roles][]"
+                           value="ROLE_ARTIST"
+                           id="role_artist"
+                            {{ 'ROLE_ARTIST' in user.roles|default([]) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="role_artist">
+                        <span class="badge bg-success">ARTISTE</span>
+                        <small class="text-muted ms-2">Peut créer et gérer des tutoriels et œuvres</small>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="user[isVerified]"
+                           value="1"
+                           id="is_verified"
+                            {{ user.isVerified|default(false) ? 'checked' : '' }}>
+                    <label class="form-check-label fw-bold" for="is_verified">
+                        Compte vérifié
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="user[isActive]"
+                           value="1"
+                           id="is_active"
+                            {{ user.isActive|default(true) ? 'checked' : '' }}>
+                    <label class="form-check-label fw-bold" for="is_active">
+                        Compte actif
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success w-100 btn-lg" id="submitBtn">
+        {{ button_label|default('Créer l\'utilisateur') }}
+    </button>
+</form>

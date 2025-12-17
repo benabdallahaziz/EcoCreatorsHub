@@ -1,0 +1,355 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Artistes{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="card-title mb-0">
+                                <i class="fas fa-paint-brush me-2"></i>Gestion des Artistes
+                            </h3>
+                            <div class="card-tools">
+                                <a href="{{ path('app_admin_artist_new') }}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-plus me-1"></i>Nouvel artiste
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Barre de recherche et filtres -->
+                        <form method="get" class="row mb-4 g-3">
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control"
+                                           placeholder="Rechercher par nom, email ou username..."
+                                           value="{{ search }}">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select name="certified" class="form-select">
+                                    <option value="">Tous les statuts</option>
+                                    <option value="true" {{ certified == 'true' ? 'selected' : '' }}>Certifiés</option>
+                                    <option value="false" {{ certified == 'false' ? 'selected' : '' }}>Non certifiés</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a href="{{ path('app_admin_artist_stats') }}" class="btn btn-info">
+                                    <i class="fas fa-chart-bar me-1"></i>Statistiques
+                                </a>
+                                <a href="{{ path('app_admin_artist_index') }}" class="btn btn-secondary">
+                                    <i class="fas fa-redo me-1"></i>Réinitialiser
+                                </a>
+                            </div>
+                        </form>
+
+                        <!-- Statistiques -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card border-left-primary shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                    Total des artistes
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    {{ total_artists }}
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-left-success shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                    Artistes certifiés
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    {{ certified_artists }}
+                                                </div>
+                                                <div class="mt-2">
+                                                <span class="text-xs">
+                                                    {{ total_artists > 0 ? ((certified_artists / total_artists) * 100)|round(1) : 0 }}% du total
+                                                </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-certificate fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-left-info shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                    Pagination
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    Page {{ current_page }}/{{ total_pages }}
+                                                </div>
+                                                <div class="mt-2">
+                                                <span class="text-xs">
+                                                    {{ paginator_total ?: artists|length }} artiste(s)
+                                                </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tableau des artistes -->
+                        {% if artists is empty %}
+                            <div class="alert alert-info text-center py-5">
+                                <i class="fas fa-inbox fa-3x mb-3 text-info"></i>
+                                <h4 class="alert-heading">Aucun artiste trouvé</h4>
+                                <p>
+                                    {% if search or certified != '' %}
+                                        Aucun artiste ne correspond à vos critères de recherche.
+                                        <a href="{{ path('app_admin_artist_index') }}" class="alert-link">Réinitialiser les filtres</a>
+                                    {% else %}
+                                        Aucun artiste n'a encore été créé.
+                                        <a href="{{ path('app_admin_artist_new') }}" class="alert-link">Créer le premier artiste</a>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped table-bordered">
+                                    <thead class="table-dark">
+                                    <tr>
+                                        <th width="60">ID</th>
+                                        <th>Nom de l'artiste</th>
+                                        <th>Utilisateur associé</th>
+                                        <th width="100">Statut</th>
+                                        <th width="100">Certification</th>
+                                        <th width="150">Date de création</th>
+                                        <th width="200" class="text-center">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for artist in artists %}
+                                        <tr>
+                                            <td class="text-center">
+                                                <span class="badge bg-secondary">#{{ artist.id }}</span>
+                                            </td>
+                                            <td>
+                                                <strong>{{ artist.name }}</strong>
+                                                {% if artist.bio %}
+                                                    <div class="text-muted small mt-1">
+                                                        {{ artist.bio|slice(0, 60) }}...
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if artist.user %}
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar-circle-sm me-2">
+                                                            <span class="avatar-text-sm">{{ artist.user.initials }}</span>
+                                                        </div>
+                                                        <div>
+                                                            <strong>{{ artist.user.username }}</strong>
+                                                            <div class="text-muted small">{{ artist.user.email }}</div>
+                                                        </div>
+                                                    </div>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Aucun utilisateur</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                {% if artist.isCertified  %}
+                                                    <span class="badge bg-success">Actif</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Inactif</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                {% if artist.isCertified %}
+                                                    <span class="badge bg-success">
+                                                    <i class="fas fa-certificate me-1"></i>Certifié
+                                                </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Non certifié</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="small">
+                                                    {{ artist.createdAt|date('d/m/Y') }}
+                                                    <div class="text-muted">
+                                                        {{ artist.createdAt|date('H:i') }}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm w-100">
+                                                    <a href="{{ path('app_admin_artist_show', {'id': artist.id}) }}"
+                                                       class="btn btn-info"
+                                                       title="Voir les détails"
+                                                       data-bs-toggle="tooltip">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('app_admin_artist_edit', {'id': artist.id}) }}"
+                                                       class="btn btn-warning"
+                                                       title="Modifier"
+                                                       data-bs-toggle="tooltip">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+
+                                                    <!-- Bouton toggle certification -->
+                                                    <form method="post"
+                                                          action="{{ path('app_admin_artist_toggle_certification', {'id': artist.id}) }}"
+                                                          class="d-inline"
+                                                          onsubmit="return confirm('{{ artist.isCertified ? 'Retirer la certification de cet artiste ?' : 'Certifier cet artiste ?' }}')">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-certification' ~ artist.id) }}">
+                                                        <button type="submit"
+                                                                class="btn {{ artist.isCertified ? 'btn-secondary' : 'btn-primary' }}"
+                                                                title="{{ artist.isCertified ? 'Retirer certification' : 'Certifier' }}"
+                                                                data-bs-toggle="tooltip">
+                                                            <i class="fas {{ artist.isCertified ? 'fa-times' : 'fa-certificate' }}"></i>
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- Bouton suppression -->
+                                                    <form method="post"
+                                                          action="{{ path('app_admin_artist_delete', {'id': artist.id}) }}"
+                                                          class="d-inline"
+                                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet artiste ? Cette action est irréversible.')">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ artist.id) }}">
+                                                        <button type="submit"
+                                                                class="btn btn-danger"
+                                                                title="Supprimer"
+                                                                data-bs-toggle="tooltip">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination (inchangée) -->
+                            {% if total_pages > 1 %}
+                                <nav aria-label="Navigation des pages" class="mt-4">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item {{ current_page == 1 ? 'disabled' : '' }}">
+                                            <a class="page-link"
+                                               href="{{ path('app_admin_artist_index', {'page': current_page - 1, 'search': search, 'certified': certified}) }}"
+                                               aria-label="Précédent">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                        {% set start_page = max(1, current_page - 2) %}
+                                        {% set end_page = min(total_pages, current_page + 2) %}
+                                        {% if start_page > 1 %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="{{ path('app_admin_artist_index', {'page': 1, 'search': search, 'certified': certified}) }}">1</a>
+                                            </li>
+                                            {% if start_page > 2 %}
+                                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% for page_num in start_page..end_page %}
+                                            <li class="page-item {{ page_num == current_page ? 'active' : '' }}">
+                                                {% if page_num == current_page %}
+                                                    <span class="page-link">{{ page_num }}</span>
+                                                {% else %}
+                                                    <a class="page-link"
+                                                       href="{{ path('app_admin_artist_index', {'page': page_num, 'search': search, 'certified': certified}) }}">{{ page_num }}</a>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                        {% if end_page < total_pages %}
+                                            {% if end_page < total_pages - 1 %}
+                                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                            {% endif %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="{{ path('app_admin_artist_index', {'page': total_pages, 'search': search, 'certified': certified}) }}">{{ total_pages }}</a>
+                                            </li>
+                                        {% endif %}
+                                        <li class="page-item {{ current_page == total_pages ? 'disabled' : '' }}">
+                                            <a class="page-link"
+                                               href="{{ path('app_admin_artist_index', {'page': current_page + 1, 'search': search, 'certified': certified}) }}"
+                                               aria-label="Suivant">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div class="text-center text-muted small mt-2">
+                                        Page {{ current_page }} sur {{ total_pages }} • {{ paginator_total ?: artists|length }} artiste(s) au total
+                                    </div>
+                                </nav>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="card-footer text-muted">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                {% if artists is not empty %}
+                                    Affichage de {{ artists|length }} artiste(s)
+                                {% else %}
+                                    Aucun artiste à afficher
+                                {% endif %}
+                            </div>
+                            <div>
+                                <a href="{{ path('app_admin_artist_debug') }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-bug me-1"></i>Mode Debug
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Styles inchangés, inchangés ici pour compacité */
+        .avatar-circle-sm { width:32px; height:32px; border-radius:50%; background-color:#6c757d; display:flex; align-items:center; justify-content:center; }
+        .avatar-text-sm { color:white; font-size:12px; font-weight:bold; }
+        .card { border:none; box-shadow:0 0.15rem 1.75rem 0 rgba(58,59,69,0.15); }
+        .card-header { border-bottom:1px solid #e3e6f0; }
+        .table th { font-weight:600; text-transform:uppercase; font-size:0.85rem; }
+        .border-left-primary { border-left:0.25rem solid #4e73df!important; }
+        .border-left-success { border-left:0.25rem solid #1cc88a!important; }
+        .border-left-info { border-left:0.25rem solid #36b9cc!important; }
+        .text-xs { font-size:0.8rem; }
+        .text-gray-800 { color:#5a5c69!important; }
+        .text-gray-300 { color:#dddfeb!important; }
+        .btn-group-sm>.btn { padding:0.25rem 0.5rem; font-size:0.875rem; border-radius:0.2rem; }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) { return new bootstrap.Tooltip(tooltipTriggerEl); });
+        });
+    </script>
+{% endblock %}

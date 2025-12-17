@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AdminDashboardController extends AbstractController
 {
-    #[Route('/admin/dashboard', name: 'admin_dashboard')]
+    #[Route('/admin', name: 'admin_dashboard')]
     public function index(): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
@@ -16,6 +16,3 @@ class AdminDashboardController extends AbstractController
         return $this->render('admin/dashboard.html.twig');
     }
 }
-
-
-

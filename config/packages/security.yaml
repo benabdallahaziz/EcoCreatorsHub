@@ -1,3 +1,4 @@
+# config/packages/security.yaml
 security:
   password_hashers:
     Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
@@ -13,30 +14,42 @@ security:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
 
-    # Firewall pour l'admin
-    admin:
-      pattern: ^/admin
-      provider: app_user_provider
-      custom_authenticator: App\Security\LoginAuthenticator
-      logout:
-        path: admin_logout
-        target: admin_login
-      # optionally remember_me
-      # remember_me:
-      #     secret: '%kernel.secret%'
-      #     lifetime: 604800
-
-    # Firewall pour les utilisateurs normaux
     main:
-      pattern: ^/
+      lazy: true
       provider: app_user_provider
-      custom_authenticator: App\Security\LoginAuthenticator
+      form_login:
+        login_path: app_login
+        check_path: app_login
+        enable_csrf: true
+        default_target_path: app_home
+        username_parameter: email
+        password_parameter: password
+        csrf_parameter: _csrf_token
+        csrf_token_id: authenticate
       logout:
         path: app_logout
-        target: app_login
+        target: app_home
 
   access_control:
-    # Accès admin
+    # 1. ROUTES PUBLIQUES D'ABORD
+
+    # Routes de connexion/déconnexion/inscription
+    - { path: ^/login$, roles: PUBLIC_ACCESS }
+    - { path: ^/logout, roles: PUBLIC_ACCESS }
+    - { path: ^/register, roles: PUBLIC_ACCESS }
+
+    # ★★★ AJOUTEZ CES LIGNES POUR LE RESET PASSWORD ★★★
+    - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+    - { path: ^/simple-reset, roles: PUBLIC_ACCESS }
+    - { path: ^/working-reset, roles: PUBLIC_ACCESS }
+    - { path: ^/api/reset-password, roles: PUBLIC_ACCESS }
+
+    # Page d'accueil publique
+    - { path: ^/$, roles: PUBLIC_ACCESS }
+
+    # 2. ROUTES PROTÉGÉES ENSUITE
     - { path: ^/admin, roles: ROLE_ADMIN }
-    # Accès utilisateur normal
     - { path: ^/artist, roles: ROLE_ARTIST }
+
+    # 3. TOUTES LES AUTRES ROUTES (optionnel - protège le reste du site)
+    # - { path: ^/, roles: IS_AUTHENTICATED_FULLY }  # Commenté pour laisser le site public

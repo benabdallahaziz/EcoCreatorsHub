@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔐 Test GMAIL Reset Password</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 800px; margin: 0 auto; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .box { border-left: 5px solid #4285f4; padding: 20px; margin: 20px 0; background: #f8f9fa; border-radius: 5px; }
+        .box-test { border-color: #ea4335; }
+        .box-success { border-color: #34a853; }
+        .box-warning { border-color: #fbbc05; }
+        .btn { padding: 12px 24px; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px; font-weight: bold; }
+        .btn-gmail { background: #4285f4; }
+        .btn-gmail:hover { background: #3367d6; }
+        .btn-test { background: #ea4335; }
+        .btn-test:hover { background: #d33426; }
+        .btn-success { background: #34a853; }
+        .btn-success:hover { background: #2e984a; }
+        .btn-warning { background: #fbbc05; color: #000; }
+        .btn-warning:hover { background: #e6a800; }
+        .result { margin-top: 20px; padding: 20px; border-radius: 8px; display: none; }
+        .show { display: block !important; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .config-info { background: #e8f0fe; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .token-box { background: #f1f3f4; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: monospace; word-break: break-all; }
+        .gmail-icon { color: #ea4335; font-size: 20px; }
+        .step { margin: 10px 0; padding-left: 20px; }
+        .step::before { content: "→ "; color: #4285f4; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 style="color: #4285f4;">📧 Test COMPLET GMAIL</h1>
+    <p style="color: #666;">Test du système de réinitialisation avec Gmail SMTP</p>
+
+    <div class="config-info">
+        <h3>⚙️ Configuration actuelle :</h3>
+        <p><strong>Service :</strong> Gmail SMTP</p>
+        <p><strong>Email :</strong> azizbenabdallah0412@gmail.com</p>
+        <p><strong>From :</strong> no-reply@ecocreatorshub.com</p>
+    </div>
+
+    <!-- ÉTAPE 1 : Test Email Simple -->
+    <div class="box box-test">
+        <h2><span class="gmail-icon">📤</span> Étape 1 : Test Email Simple</h2>
+        <p>Testez si Gmail peut envoyer un email simple</p>
+
+        <button onclick="testSimpleEmail()" class="btn btn-gmail">📧 Tester Email Simple</button>
+        <button onclick="testGmailConnection()" class="btn btn-warning">🔌 Tester Connexion Gmail</button>
+
+        <div id="email-result" class="result"></div>
+    </div>
+
+    <!-- ÉTAPE 2 : Test API Reset -->
+    <div class="box">
+        <h2><span class="gmail-icon">🔄</span> Étape 2 : Test API Reset Password</h2>
+        <p>Testez l'API complète avec votre utilisateur</p>
+
+        <div class="step">Utilisateur test : azizbenabdallah0412@gmail.com (ID: 2)</div>
+
+        <button onclick="testApiReset()" class="btn btn-test">🚀 Tester API Reset</button>
+        <button onclick="checkUserExists()" class="btn btn-warning">👤 Vérifier Utilisateur</button>
+
+        <div id="api-result" class="result"></div>
+    </div>
+
+    <!-- ÉTAPE 3 : Test Formulaire Web -->
+    <div class="box">
+        <h2><span class="gmail-icon">🌐</span> Étape 3 : Test Formulaire Web</h2>
+        <p>Testez le flux complet via l'interface web</p>
+
+        <form id="web-form" style="margin: 15px 0;">
+            <input type="hidden" name="email" value="azizbenabdallah0412@gmail.com">
+            <button type="button" onclick="testWebForm()" class="btn btn-success">📋 Tester Formulaire Web</button>
+        </form>
+
+        <div id="web-result" class="result"></div>
+    </div>
+
+    <!-- ÉTAPE 4 : Diagnostic -->
+    <div class="box box-warning">
+        <h2><span class="gmail-icon">🔧</span> Étape 4 : Diagnostic & Résolution</h2>
+
+        <button onclick="showDiagnostic()" class="btn btn-warning">🩺 Lancer Diagnostic</button>
+        <button onclick="clearAllResults()" class="btn" style="background: #6c757d;">🗑️ Effacer Tout</button>
+
+        <div id="diagnostic-result" class="result"></div>
+    </div>
+
+    <!-- Guide de dépannage -->
+    <div class="box box-success">
+        <h2><span class="gmail-icon">💡</span> Guide de dépannage Gmail</h2>
+
+        <h4>Si vous ne recevez pas d'emails :</h4>
+        <ol>
+            <li><strong>Vérifiez le dossier Spam</strong> dans Gmail</li>
+            <li><strong>Activez la vérification en 2 étapes</strong> sur Google</li>
+            <li><strong>Générez un mot de passe d'application</strong> :
+                <ul>
+                    <li>Allez sur <a href="https://myaccount.google.com/security" target="_blank">Paramètres de sécurité Google</a></li>
+                    <li>Activez "Validation en deux étapes"</li>
+                    <li>Créez un "Mot de passe d'application" pour "Mail"</li>
+                    <li>Utilisez ce mot de passe dans MAILER_DSN</li>
+                </ul>
+            </li>
+            <li><strong>Attendez quelques minutes</strong>, Gmail peut avoir un délai</li>
+        </ol>
+
+        <div id="troubleshooting" style="display: none; margin-top: 15px; padding: 15px; background: #e8f5e8; border-radius: 5px;">
+            <!-- Contenu dynamique -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== FONCTIONS DE TEST ====================
+
+    // Test Email Simple
+    async function testSimpleEmail() {
+        const result = document.getElementById('email-result');
+        showLoading(result, 'Envoi email simple via Gmail...');
+
+        try {
+            const response = await fetch('/reset-password/test-gmail-simple');
+            const text = await response.text();
+
+            result.innerHTML = `
+                <h3>📧 Test Email Simple Gmail</h3>
+                <div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    ${text}
+                </div>
+            `;
+
+            if (text.includes('✅') || response.ok) {
+                result.className = 'result success show';
+                showMessage('✅ Email simple envoyé. Vérifiez votre boîte Gmail !');
+            } else {
+                result.className = 'result error show';
+                showTroubleshooting('email-simple');
+            }
+        } catch (error) {
+            showError(result, 'Erreur réseau : ' + error.message);
+            showTroubleshooting('network');
+        }
+    }
+
+    // Test Connexion Gmail
+    async function testGmailConnection() {
+        const result = document.getElementById('email-result');
+        showLoading(result, 'Test de connexion Gmail SMTP...');
+
+        try {
+            const response = await fetch('/reset-password/test-gmail-connection');
+            const text = await response.text();
+
+            result.innerHTML = `
+                <h3>🔌 Test Connexion Gmail</h3>
+                <div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    ${text}
+                </div>
+            `;
+
+            result.className = text.includes('✅') ? 'result success show' : 'result error show';
+        } catch (error) {
+            showError(result, error.message);
+        }
+    }
+
+    // Test API Reset
+    async function testApiReset() {
+        const result = document.getElementById('api-result');
+        showLoading(result, 'Test API Reset Password via Gmail...');
+
+        try {
+            const response = await fetch('/api/reset-password/request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'azizbenabdallah0412@gmail.com' })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                result.className = 'result success show';
+                let html = '<h3>✅ API Reset Password</h3>';
+                html += '<div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;">';
+                html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                html += '</div>';
+
+                if (data.token) {
+                    html += '<div class="token-box">';
+                    html += '<p><strong>Token généré :</strong></p>';
+                    html += '<code>' + data.token + '</code>';
+                    html += '</div>';
+
+                    html += '<div style="margin-top: 15px;">';
+                    html += '<a href="/reset-password/reset/' + data.token + '" target="_blank" class="btn" style="background: #34a853;">';
+                    html += '🔗 Tester le lien de réinitialisation</a>';
+                    html += '</div>';
+                }
+
+                if (data.email_sent === false) {
+                    html += '<div class="result warning show" style="margin-top: 15px;">';
+                    html += '<p><strong>⚠️ Email non envoyé</strong></p>';
+                    html += '<p>Le token a été généré mais Gmail n\'a pas pu envoyer l\'email.</p>';
+                    html += '<p>Utilisez le lien direct ci-dessus.</p>';
+                    html += '</div>';
+                    showTroubleshooting('email-failed');
+                } else if (data.email_sent === true) {
+                    html += '<div class="result success show" style="margin-top: 15px;">';
+                    html += '<p><strong>📧 Email envoyé via Gmail</strong></p>';
+                    html += '<p>Vérifiez votre boîte Gmail (et le dossier spam).</p>';
+                    html += '</div>';
+                }
+
+                result.innerHTML = html;
+            } else {
+                result.className = 'result error show';
+                result.innerHTML = '<h3>❌ Erreur API</h3><pre>' + JSON.stringify(data) + '</pre>';
+                showTroubleshooting('api-error');
+            }
+        } catch (error) {
+            showError(result, 'Erreur réseau : ' + error.message);
+        }
+    }
+
+    // Vérifier l'utilisateur
+    async function checkUserExists() {
+        const result = document.getElementById('api-result');
+        showLoading(result, 'Vérification utilisateur...');
+
+        try {
+            const response = await fetch('/api/reset-password/check-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'azizbenabdallah0412@gmail.com' })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                result.className = data.exists ? 'result success show' : 'result error show';
+                result.innerHTML = `
+                    <h3>${data.exists ? '✅' : '❌'} Utilisateur</h3>
+                    <div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } else {
+                result.className = 'result error show';
+                result.innerHTML = '<h3>❌ Erreur</h3><pre>' + JSON.stringify(data) + '</pre>';
+            }
+        } catch (error) {
+            showError(result, error.message);
+        }
+    }
+
+    // Test Formulaire Web
+    async function testWebForm() {
+        const result = document.getElementById('web-result');
+        showLoading(result, 'Test formulaire web...');
+
+        try {
+            const form = document.getElementById('web-form');
+            const formData = new FormData(form);
+
+            const response = await fetch('/reset-password/handle-request', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok || response.redirected) {
+                result.className = 'result success show';
+                result.innerHTML = `
+                    <h3>✅ Formulaire web soumis</h3>
+                    <p>Redirection vers la page de vérification...</p>
+                    <p><a href="/reset-password/check-email" target="_blank" class="btn" style="background: #4285f4;">
+                        📨 Ouvrir la page de vérification
+                    </a></p>
+                `;
+
+                // Ouvrir dans un nouvel onglet après un délai
+                setTimeout(() => {
+                    window.open('/reset-password/check-email', '_blank');
+                }, 1000);
+            } else {
+                result.className = 'result error show';
+                result.innerHTML = '<h3>❌ Erreur formulaire</h3>';
+            }
+        } catch (error) {
+            showError(result, error.message);
+        }
+    }
+
+    // Diagnostic
+    async function showDiagnostic() {
+        const result = document.getElementById('diagnostic-result');
+        showLoading(result, 'Diagnostic en cours...');
+
+        try {
+            const response = await fetch('/reset-password/gmail-diagnostic');
+            const text = await response.text();
+
+            result.innerHTML = `
+                <h3>🩺 Diagnostic Gmail</h3>
+                <div style="background: white; padding: 20px; border-radius: 5px; margin: 10px 0;">
+                    ${text}
+                </div>
+            `;
+            result.className = 'result info show';
+        } catch (error) {
+            showError(result, error.message);
+        }
+    }
+
+    // ==================== FONCTIONS UTILITAIRES ====================
+
+    function showLoading(element, message) {
+        element.className = 'result info show';
+        element.innerHTML = `<p><strong>⏳ ${message}</strong></p>`;
+    }
+
+    function showError(element, message) {
+        element.className = 'result error show';
+        element.innerHTML = `<h3>❌ Erreur</h3><p>${message}</p>`;
+    }
+
+    function showMessage(message) {
+        const msg = document.createElement('div');
+        msg.className = 'result success show';
+        msg.innerHTML = `<p>${message}</p>`;
+        msg.style.position = 'fixed';
+        msg.style.top = '20px';
+        msg.style.right = '20px';
+        msg.style.zIndex = '1000';
+        msg.style.padding = '15px';
+        msg.style.borderRadius = '5px';
+        msg.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 5000);
+    }
+
+    function showTroubleshooting(type) {
+        const container = document.getElementById('troubleshooting');
+        let html = '<h4>🔧 Solution recommandée :</h4>';
+
+        switch(type) {
+            case 'email-simple':
+                html += `
+                    <p>L'email simple n'a pas pu être envoyé. Vérifiez :</p>
+                    <ol>
+                        <li>Que la vérification en 2 étapes est activée sur Google</li>
+                        <li>Que vous utilisez un <strong>mot de passe d'application</strong></li>
+                        <li>Le mot de passe dans .env.local est correct</li>
+                    </ol>
+                    <p><a href="https://myaccount.google.com/security" target="_blank">🔗 Accéder aux paramètres de sécurité Google</a></p>
+                `;
+                break;
+            case 'email-failed':
+                html += `
+                    <p>Gmail n'a pas pu envoyer l'email de réinitialisation :</p>
+                    <ol>
+                        <li>Vérifiez votre quota Gmail (limite d'envoi)</li>
+                        <li>Attendez quelques minutes et réessayez</li>
+                        <li>Vérifiez le dossier spam dans Gmail</li>
+                    </ol>
+                `;
+                break;
+            case 'api-error':
+                html += `
+                    <p>L'API a rencontré une erreur :</p>
+                    <ol>
+                        <li>Vérifiez que votre utilisateur existe dans la base</li>
+                        <li>Vérifiez que l'utilisateur est actif (isActive = true)</li>
+                        <li>Redémarrez le serveur Symfony</li>
+                    </ol>
+                `;
+                break;
+            default:
+                html += '<p>Consultez le guide de dépannage ci-dessus.</p>';
+        }
+
+        container.innerHTML = html;
+        container.style.display = 'block';
+    }
+
+    function clearAllResults() {
+        document.querySelectorAll('.result').forEach(el => {
+            el.innerHTML = '';
+            el.className = 'result';
+        });
+        document.getElementById('troubleshooting').style.display = 'none';
+    }
+
+    // Initialisation
+    window.onload = function() {
+        console.log('🔐 Test Gmail Reset Password - Prêt');
+    };
+</script>
+</body>
+</html>

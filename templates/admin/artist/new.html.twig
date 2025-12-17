@@ -1,0 +1,212 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel artiste{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 auto;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_admin_artist_index') }}">Artistes</a></li>
+                <li class="breadcrumb-item active">Nouvel artiste</li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0"><i class="fas fa-user-plus me-2 text-primary"></i>Créer un nouvel artiste</h1>
+                <p class="text-muted mb-0">Remplissez les informations pour créer un nouveau profil artiste</p>
+            </div>
+            <a href="{{ path('app_admin_artist_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+            </a>
+        </div>
+
+        <!-- Messages flash -->
+        {% for type in ['success', 'error', 'warning'] %}
+            {% for message in app.flashes(type) %}
+                <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{{ type == 'success' ? 'check-circle' : type == 'error' ? 'exclamation-circle' : 'exclamation-triangle' }} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <!-- Warning si pas d'utilisateurs disponibles -->
+        {% if available_users_count == 0 %}
+            <div class="alert alert-warning">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                    <div>
+                        <h5 class="alert-heading">Aucun utilisateur disponible !</h5>
+                        <p class="mb-2">Vous devez d'abord créer un utilisateur avant de pouvoir créer un artiste.</p>
+                        <a href="{{ path('app_admin_user_new') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-user-plus me-2"></i>Créer un nouvel utilisateur
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Formulaire -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Informations de l'artiste</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ form_start(form, {
+                            'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'id': 'artist-form'}
+                        }) }}
+
+                        <div class="row mb-4">
+                            <div class="col-md-4 text-center">
+                                <div class="avatar-preview mb-3" id="avatarPreview">NA</div>
+                                <div class="small text-muted">L'avatar sera généré à partir des initiales</div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        {{ form_label(form.name, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.name, {'attr': {'class': 'form-control','placeholder': 'Ex: Marie EcoArt','oninput':'updateAvatarPreview(this.value)'}}) }}
+                                        <div class="text-danger small mt-1">{{ form_errors(form.name) }}</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form_label(form.ecoTechnique, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.ecoTechnique, {'attr': {'class': 'form-control','placeholder': 'Ex: Recyclage, Upcycling, etc.'}}) }}
+                                        <div class="text-danger small mt-1">{{ form_errors(form.ecoTechnique) }}</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form_label(form.user, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.user, {'attr': {'class': 'form-control form-select'}}) }}
+                                        <div class="text-danger small mt-1">{{ form_errors(form.user) }}</div>
+                                        {% if available_users_count > 0 %}
+                                            <small class="text-success"><i class="fas fa-check-circle me-1"></i>{{ available_users_count }} utilisateur(s) disponible(s)</small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check form-switch mt-4">
+                                            {{ form_widget(form.isCertified, {'attr': {'class': 'form-check-input','role': 'switch'}}) }}
+                                            <label class="form-check-label fw-bold" for="{{ form.isCertified.vars.id }}">
+                                                Certifier cet artiste
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Les artistes certifiés bénéficient d'un badge spécial</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Biographie -->
+                        <div class="mb-4">
+                            {{ form_label(form.bio, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.bio, {'attr': {'class': 'form-control','rows': 6,'placeholder': 'Décrivez le parcours, les techniques et l\'approche écologique de l\'artiste...'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(form.bio) }}</div>
+                            <small class="text-muted">Cette biographie sera visible publiquement</small>
+                        </div>
+
+                        <!-- Photo de profil -->
+                        <div class="mb-4">
+                            {{ form_label(form.profilePicture, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.profilePicture, {'attr': {'class': 'form-control','placeholder': 'https://exemple.com/photo.jpg'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(form.profilePicture) }}</div>
+                            <small class="text-muted">Laissez vide pour utiliser les initiales</small>
+                        </div>
+
+                        <!-- Validation errors -->
+                        {% if not form.vars.valid %}
+                            <div class="alert alert-danger">
+                                <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Veuillez corriger les erreurs ci-dessus</h6>
+                            </div>
+                        {% endif %}
+
+                        <!-- Boutons -->
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a href="{{ path('app_admin_artist_index') }}" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Annuler</a>
+                            <button type="submit" class="btn btn-success" {% if available_users_count == 0 %}disabled{% endif %}>
+                                <i class="fas fa-check me-2"></i>Créer l'artiste
+                            </button>
+                        </div>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function updateAvatarPreview(name) {
+                const preview = document.getElementById('avatarPreview');
+                preview.textContent = name && name.length >= 2 ? name.substring(0, 2).toUpperCase() : 'NA';
+            }
+
+            const nameInput = document.querySelector('#{{ form.name.vars.id }}');
+            if (nameInput) {
+                updateAvatarPreview(nameInput.value);
+                nameInput.addEventListener('input', function() {
+                    updateAvatarPreview(this.value);
+                });
+            }
+
+            const form = document.getElementById('artist-form');
+            if (form) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                form.addEventListener('submit', function() {
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Création...';
+                        submitBtn.disabled = true;
+                    }
+                });
+
+                if (document.querySelector('.text-danger') || document.querySelector('.alert-danger')) {
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Créer l\'artiste';
+                        submitBtn.disabled = false;
+                    }
+                }
+            }
+
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    if (alert.classList.contains('show')) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                });
+            }, 5000);
+        });
+    </script>
+{% endblock %}

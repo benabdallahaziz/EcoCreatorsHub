@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}EcoCreatorsHub - Organic Foods{% endblock %}</title>
+    <title>{% block title %}EcoCreatorsHub - Plateforme Écologique{% endblock %}</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
 
@@ -41,19 +41,72 @@
 {% block header %}
     <!-- Navbar -->
     <div class="container-fluid fixed-top">
+        <!-- Top Bar avec liens de connexion/déconnexion -->
         <div class="container topbar bg-primary d-none d-lg-block">
             <div class="d-flex justify-content-between">
                 <div class="top-info ps-2">
                     <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">123 Street, New York</a></small>
-                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">Email@Example.com</a></small>
+                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">contact@ecocreatorshub.com</a></small>
                 </div>
                 <div class="top-link pe-2">
-                    <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
-                    <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
-                    <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
+                    <!-- Liens de connexion/déconnexion -->
+                    {% if app.user %}
+                        <span class="text-white me-2">
+                            <i class="fas fa-user me-1"></i>
+                            <small>Bonjour, {{ app.user.username }}</small>
+                        </span>
+                        <span class="text-white mx-2">|</span>
+                        <a href="{{ path('app_logout') }}" class="text-white">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            <small>Déconnexion</small>
+                        </a>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="text-white">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            <small>Connexion</small>
+                        </a>
+                        <span class="text-white mx-2">|</span>
+                        <a href="{{ path('app_register') }}" class="text-white">
+                            <i class="fas fa-user-plus me-1"></i>
+                            <small>Inscription</small>
+                        </a>
+                    {% endif %}
+
+                    <span class="text-white mx-2">|</span>
+                    <a href="#" class="text-white"><small class="text-white">Mentions légales</small></a>
                 </div>
             </div>
         </div>
+
+        <!-- Barre Admin -->
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="admin-navbar bg-dark text-white py-2">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            <small>Mode Administrateur</small>
+                        </div>
+                        <div>
+                            <a href="{{ path('admin_dashboard') }}" class="text-white me-3">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            </a>
+                            <a href="{{ path('app_admin_user_index') }}" class="text-white me-3">
+                                <i class="fas fa-users me-1"></i>Utilisateurs
+                            </a>
+                            <a href="{{ path('app_admin_artist_index') }}" class="text-white me-3">
+                                <i class="fas fa-palette me-1"></i>Artistes
+                            </a>
+                            <a href="{{ path('app_logout') }}" class="text-danger">
+                                <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Navigation principale -->
         <div class="container px-0">
             <nav class="navbar navbar-light bg-white navbar-expand-xl">
                 <a href="{{ path('app_home') }}" class="navbar-brand">
@@ -64,21 +117,101 @@
                 </button>
                 <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                     <div class="navbar-nav mx-auto">
-                        <a href="{{ path('app_home') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Home</a>
-                        <a href="{{ path('app_shop') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_shop' ? 'active' : '' }}">Shop</a>
-                        <a href="{{ path('app_contact') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a>
+                        <a href="{{ path('app_home') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Accueil</a>
+
+                        {# Routes conditionnelles - seulement si elles existent #}
+                        {% if 'app_shop' in app.request.attributes.get('_route') %}
+                            <a href="{{ path('app_shop') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_shop' ? 'active' : '' }}">Boutique</a>
+                        {% endif %}
+
+                        {% if 'app_contact' in app.request.attributes.get('_route') %}
+                            <a href="{{ path('app_contact') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a>
+                        {% endif %}
+
+                        <!-- Liens pour utilisateurs connectés -->
+                        {% if app.user %}
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle me-1"></i>Mon compte
+                                </a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-user me-2"></i>Mon profil
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-shopping-cart me-2"></i>Mes commandes
+                                    </a>
+                                    {% if is_granted('ROLE_ARTIST') %}
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-palette me-2"></i>Espace artiste
+                                        </a>
+                                    {% endif %}
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{{ path('app_logout') }}">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
+
+                    <!-- Icons de droite -->
                     <div class="d-flex m-3 me-0">
                         <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal">
                             <i class="fas fa-search text-primary"></i>
                         </button>
-                        <a href="{{ path('app_cart') }}" class="position-relative me-4 my-auto">
-                            <i class="fa fa-shopping-bag fa-2x"></i>
-                            <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
-                        </a>
-                        <a href="#" class="my-auto">
-                            <i class="fas fa-user fa-2x"></i>
-                        </a>
+
+                        {# Lien panier conditionnel #}
+                        {% if 'app_cart' in app.request.attributes.get('_route') %}
+                            <a href="{{ path('app_cart') }}" class="position-relative me-4 my-auto">
+                                <i class="fa fa-shopping-bag fa-2x"></i>
+                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
+                            </a>
+                        {% endif %}
+
+                        <!-- Icone utilisateur avec dropdown -->
+                        <div class="dropdown my-auto">
+                            <a href="#" class="dropdown-toggle text-decoration-none" data-bs-toggle="dropdown">
+                                <i class="fas fa-user fa-2x"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                {% if app.user %}
+                                    <h6 class="dropdown-header">Connecté en tant que</h6>
+                                    <p class="dropdown-item-text mb-0">{{ app.user.username }}</p>
+                                    <p class="dropdown-item-text small text-muted">{{ app.user.email }}</p>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-user me-2"></i>Mon profil
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-cog me-2"></i>Paramètres
+                                    </a>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <a class="dropdown-item" href="{{ path('admin_dashboard') }}">
+                                            <i class="fas fa-shield-alt me-2"></i>Administration
+                                        </a>
+                                    {% endif %}
+                                    <div class="dropdown-divider"></div>
+                                    <form action="{{ path('app_logout') }}" method="post" class="dropdown-item p-0">
+                                        <button type="submit" class="btn btn-link text-danger p-0 w-100 text-start">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <a class="dropdown-item" href="{{ path('app_login') }}">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Connexion
+                                    </a>
+                                    <a class="dropdown-item" href="{{ path('app_register') }}">
+                                        <i class="fas fa-user-plus me-2"></i>Inscription
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-question-circle me-2"></i>Aide
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -90,12 +223,12 @@
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content rounded-0">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Search by keyword</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Rechercher</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body d-flex align-items-center">
                     <div class="input-group w-75 mx-auto d-flex">
-                        <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
+                        <input type="search" class="form-control p-3" placeholder="Rechercher des produits..." aria-describedby="search-icon-1">
                         <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
                     </div>
                 </div>
@@ -103,6 +236,33 @@
         </div>
     </div>
 {% endblock %}
+
+<!-- Messages flash -->
+<div class="container mt-3">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+</div>
 
 <!-- Main Content with proper spacing -->
 <div style="padding-top: 120px; min-height: 100vh;">
@@ -116,26 +276,43 @@
             <div class="row g-5">
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-item">
-                        <h4 class="text-light mb-3">Why People Like us!</h4>
-                        <p class="mb-4">Fresh organic products for a healthier lifestyle.</p>
-                        <a href="" class="btn border-secondary py-2 px-4 rounded-pill text-primary">Read More</a>
+                        <h4 class="text-light mb-3">Pourquoi nous choisir ?</h4>
+                        <p class="mb-4">Plateforme dédiée aux créateurs écologiques et aux produits durables.</p>
+                        <a href="{{ path('app_home') }}" class="btn border-secondary py-2 px-4 rounded-pill text-primary">En savoir plus</a>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <div class="d-flex flex-column text-start footer-item">
-                        <h4 class="text-light mb-3">Shop Info</h4>
-                        <a class="btn-link" href="">About Us</a>
-                        <a class="btn-link" href="">Contact Us</a>
-                        <a class="btn-link" href="">Privacy Policy</a>
-                        <a class="btn-link" href="">Terms & Condition</a>
+                        <h4 class="text-light mb-3">Informations</h4>
+                        <a class="btn-link" href="{{ path('app_home') }}">À propos</a>
+
+                        {# Lien contact conditionnel #}
+                        {% if 'app_contact' in app.request.attributes.get('_route') %}
+                            <a class="btn-link" href="{{ path('app_contact') }}">Contact</a>
+                        {% endif %}
+
+                        <a class="btn-link" href="#">Mentions légales</a>
+                        <a class="btn-link" href="#">CGU</a>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-item">
-                        <h4 class="text-light mb-3">Contact</h4>
-                        <p>Address: 123 Street, New York</p>
-                        <p>Email: Example@gmail.com</p>
-                        <p>Phone: +0123 4567 8910</p>
+                        <h4 class="text-light mb-3">Contactez-nous</h4>
+                        <p><i class="fas fa-map-marker-alt me-2"></i>123 Street, New York</p>
+                        <p><i class="fas fa-envelope me-2"></i>contact@ecocreatorshub.com</p>
+                        <p><i class="fas fa-phone me-2"></i>+01 23 45 67 89</p>
+
+                        <!-- Liens de connexion rapides -->
+                        <div class="mt-3">
+                            {% if not app.user %}
+                                <a href="{{ path('app_login') }}" class="btn btn-outline-light btn-sm me-2">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Connexion
+                                </a>
+                                <a href="{{ path('app_register') }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-user-plus me-1"></i>Inscription
+                                </a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -147,14 +324,16 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12 text-center">
-                    <span class="text-light"><i class="fas fa-copyright text-light me-2"></i>EcoCreatorsHub, All right reserved.</span>
+                    <span class="text-light"><i class="fas fa-leaf text-light me-2"></i>EcoCreatorsHub {{ "now"|date("Y") }}, Tous droits réservés.</span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Back to Top -->
-    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top">
+        <i class="fa fa-arrow-up"></i>
+    </a>
 {% endblock %}
 
 <!-- JavaScript Libraries -->
@@ -169,5 +348,40 @@
 
 <!-- Template Javascript -->
 <script src="{{ asset('js/main.js') }}"></script>
+
+<!-- Script pour gérer la connexion/déconnexion -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion du spinner
+        window.addEventListener('load', function() {
+            const spinner = document.getElementById('spinner');
+            if (spinner) {
+                spinner.style.display = 'none';
+            }
+        });
+
+        // Gestion des dropdowns sur mobile
+        const dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(dropdown => {
+            dropdown.addEventListener('click', function(e) {
+                if (window.innerWidth < 992) {
+                    e.preventDefault();
+                    const menu = this.nextElementSibling;
+                    menu.classList.toggle('show');
+                }
+            });
+        });
+
+        // Fermer les dropdowns en cliquant ailleurs
+        document.addEventListener('click', function(e) {
+            if (!e.target.matches('.dropdown-toggle')) {
+                const dropdowns = document.querySelectorAll('.dropdown-menu');
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>

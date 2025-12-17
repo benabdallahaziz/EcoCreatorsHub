@@ -1,0 +1,369 @@
+{# templates/admin/user/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de l'utilisateur {{ user.username }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .user-profile-card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .user-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+
+        .user-info-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .info-value {
+            color: #6c757d;
+        }
+
+        .badge-lg {
+            font-size: 0.9em;
+            padding: 0.5em 1em;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="card user-profile-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h1 class="h3 mb-0">
+                                <i class="fas fa-user-circle me-2"></i>Détails de l'utilisateur
+                            </h1>
+                            <a href="{{ path('app_admin_user_index') }}" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-arrow-left me-1"></i> Retour
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        {# Messages flash #}
+                        {% for message in app.flashes('success') %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+
+                        {% for message in app.flashes('error') %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+
+                        <div class="text-center mb-4">
+                            <div class="user-avatar-large">
+                                {{ user.initials }}
+                            </div>
+                            <h2 class="h4 mb-1">{{ user.username }}</h2>
+                            <p class="text-muted mb-0">{{ user.email }}</p>
+
+                            <div class="mt-3">
+                                {% if user.isActive %}
+                                    {% if user.isVerified %}
+                                        <span class="badge bg-success badge-lg">
+                                            <i class="fas fa-check-circle me-1"></i> Actif & Vérifié
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning badge-lg">
+                                            <i class="fas fa-exclamation-circle me-1"></i> Non vérifié
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-danger badge-lg">
+                                        <i class="fas fa-times-circle me-1"></i> Inactif
+                                    </span>
+                                {% endif %}
+
+                                {% if user.isAdmin() %}
+                                    <span class="badge bg-danger badge-lg ms-2">
+                                        <i class="fas fa-shield-alt me-1"></i> Administrateur
+                                    </span>
+                                {% endif %}
+
+                                {% if user.isArtist() %}
+                                    <span class="badge bg-success badge-lg ms-2">
+                                        <i class="fas fa-palette me-1"></i> Artiste
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            {# Colonne gauche : Informations de base #}
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-info-circle me-2"></i>Informations générales
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="user-info-item">
+                                            <div class="info-label">ID</div>
+                                            <div class="info-value">#{{ user.id }}</div>
+                                        </div>
+
+                                        <div class="user-info-item">
+                                            <div class="info-label">Nom d'utilisateur</div>
+                                            <div class="info-value">{{ user.username }}</div>
+                                        </div>
+
+                                        <div class="user-info-item">
+                                            <div class="info-label">Email</div>
+                                            <div class="info-value">{{ user.email }}</div>
+                                        </div>
+
+                                        <div class="user-info-item">
+                                            <div class="info-label">Statut du compte</div>
+                                            <div class="info-value">
+                                                {% if user.isActive %}
+                                                    <span class="text-success">
+                                                        <i class="fas fa-check-circle"></i> Actif
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-danger">
+                                                        <i class="fas fa-times-circle"></i> Inactif
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="user-info-item">
+                                            <div class="info-label">Email vérifié</div>
+                                            <div class="info-value">
+                                                {% if user.isVerified %}
+                                                    <span class="text-success">
+                                                        <i class="fas fa-check-circle"></i> Oui
+                                                        {% if user.verifiedAt %}
+                                                            <small class="text-muted ms-2">
+                                                                ({{ user.verifiedAt|date('d/m/Y H:i') }})
+                                                            </small>
+                                                        {% endif %}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-warning">
+                                                        <i class="fas fa-exclamation-circle"></i> Non
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# Colonne droite : Métadonnées #}
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-cogs me-2"></i>Métadonnées
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="user-info-item">
+                                            <div class="info-label">Rôles</div>
+                                            <div class="info-value">
+                                                {% for role in user.roles %}
+                                                    {% if role == 'ROLE_ADMIN' %}
+                                                        <span class="badge bg-danger">Administrateur</span>
+                                                    {% elseif role == 'ROLE_ARTIST' %}
+                                                        <span class="badge bg-success">Artiste</span>
+                                                    {% elseif role == 'ROLE_USER' %}
+                                                        <span class="badge bg-secondary">Utilisateur</span>
+                                                    {% else %}
+                                                        <span class="badge bg-info">{{ role }}</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <div class="user-info-item">
+                                            <div class="info-label">Date de création</div>
+                                            <div class="info-value">
+                                                {{ user.createdAt ? user.createdAt|date('d/m/Y H:i') : 'N/A' }}
+                                            </div>
+                                        </div>
+
+                                        <div class="user-info-item">
+                                            <div class="info-label">Dernière mise à jour</div>
+                                            <div class="info-value">
+                                                {{ user.updatedAt ? user.updatedAt|date('d/m/Y H:i') : 'N/A' }}
+                                            </div>
+                                        </div>
+
+                                        <div class="user-info-item">
+                                            <div class="info-label">Âge du compte</div>
+                                            <div class="info-value">
+                                                {% set age = user.accountAge %}
+                                                {% if age == 0 %}
+                                                    Moins d'un an
+                                                {% else %}
+                                                    {{ age }} an{{ age > 1 ? 's' : '' }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="user-info-item">
+                                            <div class="info-label">Nombre de connexions</div>
+                                            <div class="info-value">
+                                                <span class="text-muted">Non disponible</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Actions #}
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-tools me-2"></i>Actions
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="{{ path('app_admin_user_edit', {'id': user.id}) }}"
+                                       class="btn btn-warning">
+                                        <i class="fas fa-edit me-1"></i> Modifier
+                                    </a>
+
+                                    {% if user.isActive %}
+                                        <form action="{{ path('app_admin_user_deactivate', {'id': user.id}) }}"
+                                              method="post" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('deactivate' ~ user.id) }}">
+                                            <button type="submit" class="btn btn-secondary"
+                                                    onclick="return confirm('Désactiver cet utilisateur ?')">
+                                                <i class="fas fa-toggle-off me-1"></i> Désactiver
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form action="{{ path('app_admin_user_activate', {'id': user.id}) }}"
+                                              method="post" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('activate' ~ user.id) }}">
+                                            <button type="submit" class="btn btn-success"
+                                                    onclick="return confirm('Activer cet utilisateur ?')">
+                                                <i class="fas fa-toggle-on me-1"></i> Activer
+                                            </button>
+                                        </form>
+                                    {% endif %}
+
+                                    {% if not user.isVerified %}
+                                        <form action="{{ path('app_admin_user_verify', {'id': user.id}) }}"
+                                              method="post" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('verify' ~ user.id) }}">
+                                            <button type="submit" class="btn btn-primary"
+                                                    onclick="return confirm('Marquer cet email comme vérifié ?')">
+                                                <i class="fas fa-check-circle me-1"></i> Vérifier email
+                                            </button>
+                                        </form>
+                                    {% endif %}
+
+                                    {% if user.isAdmin() %}
+                                        <a href="#" class="btn btn-info">
+                                            <i class="fas fa-shield-alt me-1"></i> Droits admin
+                                        </a>
+                                    {% endif %}
+
+                                    <a href="{{ path('app_admin_user_index') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-list me-1"></i> Liste complète
+                                    </a>
+
+                                    <form action="{{ path('app_admin_user_delete', {'id': user.id}) }}"
+                                          method="post" class="d-inline ms-auto">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                        <button type="submit" class="btn btn-danger"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')">
+                                            <i class="fas fa-trash me-1"></i> Supprimer
+                                        </button>
+                                    </form>
+                                </div>
+
+                                {# Message d'avertissement si l'utilisateur est admin #}
+                                {% if user.isAdmin() %}
+                                    <div class="alert alert-warning mt-3">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>Attention :</strong> Cet utilisateur est administrateur.
+                                        La suppression ou désactivation d'un administrateur peut limiter l'accès à certaines fonctionnalités.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-muted text-center">
+                        <small>
+                            <i class="fas fa-history me-1"></i>
+                            Dernière consultation : {{ "now"|date('d/m/Y H:i') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-close les alertes après 5 secondes
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    if (alert.classList.contains('show')) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                });
+            }, 5000);
+
+            // Confirmation pour les actions critiques
+            document.querySelectorAll('form[action*="delete"] button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (!confirm('⚠️ Cette action est irréversible !\n\nÊtes-vous ABSOLUMENT sûr de vouloir supprimer cet utilisateur ?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

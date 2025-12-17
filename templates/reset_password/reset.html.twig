@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau mot de passe - EcoCreatorsHub{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="h4 mb-0">
+                            <i class="fas fa-lock me-2"></i>Créer un nouveau mot de passe
+                        </h2>
+                    </div>
+
+                    <div class="card-body">
+                        {% for message in app.flashes('success') %}
+                            <div class="alert alert-success">{{ message }}</div>
+                        {% endfor %}
+
+                        {% for message in app.flashes('error') %}
+                            <div class="alert alert-danger">{{ message }}</div>
+                        {% endfor %}
+
+                        <form method="post" action="{{ path('app_reset_password') }}">
+                            <input type="hidden" name="token" value="{{ token }}">
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Nouveau mot de passe</label>
+                                <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                                <small class="text-muted">Minimum 6 caractères</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-check me-2"></i>Réinitialiser le mot de passe
+                                </button>
+                                <a href="{{ path('app_login') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Retour à la connexion
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

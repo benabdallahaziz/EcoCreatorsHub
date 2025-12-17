@@ -1,0 +1,519 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - EcoCreatorsHub{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .password-strength {
+            height: 5px;
+            margin-top: 5px;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        .strength-0 { background: #dc3545; width: 20%; }
+        .strength-1 { background: #ff6b6b; width: 40%; }
+        .strength-2 { background: #ffc107; width: 60%; }
+        .strength-3 { background: #28a745; width: 80%; }
+        .strength-4 { background: #198754; width: 100%; }
+
+        .password-requirements {
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        .requirement {
+            margin-bottom: 3px;
+        }
+        .requirement.met {
+            color: #198754;
+        }
+        .requirement.unmet {
+            color: #6c757d;
+        }
+        .requirement i {
+            margin-right: 5px;
+        }
+
+        .real-time-validation {
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        .valid-feedback, .invalid-feedback {
+            display: block;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="h4 mb-0">
+                            <i class="fas fa-user-plus me-2"></i>Créer un compte
+                        </h2>
+                    </div>
+
+                    <div class="card-body">
+                        {% for message in app.flashes('success') %}
+                            <div class="alert alert-success alert-dismissible fade show">
+                                <i class="fas fa-check-circle me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+
+                        {% for message in app.flashes('error') %}
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+
+                        {{ form_start(registrationForm, {
+                            'attr': {
+                                'class': 'needs-validation',
+                                'novalidate': 'novalidate',
+                                'id': 'registration-form'
+                            }
+                        }) }}
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.email) }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                {{ form_widget(registrationForm.email, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'exemple@email.com',
+                                        'aria-describedby': 'email-help'
+                                    }
+                                }) }}
+                            </div>
+                            <div id="email-help" class="form-text real-time-validation">
+                                <span id="email-validation"></span>
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ form_errors(registrationForm.email) }}
+                            </div>
+                        </div>
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.username) }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                {{ form_widget(registrationForm.username, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Votre nom d\'utilisateur',
+                                        'minlength': '3',
+                                        'maxlength': '30',
+                                        'aria-describedby': 'username-help'
+                                    }
+                                }) }}
+                            </div>
+                            <div id="username-help" class="form-text real-time-validation">
+                                <span id="username-validation"></span>
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ form_errors(registrationForm.username) }}
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.plainPassword.first) }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                {{ form_widget(registrationForm.plainPassword.first, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'id': 'password',
+                                        'minlength': '12',
+                                        'aria-describedby': 'password-strength password-help'
+                                    }
+                                }) }}
+                                <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+
+                            <!-- Password strength meter -->
+                            <div class="password-strength mt-2" id="password-strength"></div>
+
+                            <!-- Password requirements -->
+                            <div class="password-requirements mt-2">
+                                <div class="requirement" id="req-length">
+                                    <i class="fas fa-circle"></i> Au moins 12 caractères
+                                </div>
+                                <div class="requirement" id="req-uppercase">
+                                    <i class="fas fa-circle"></i> 1 majuscule minimum
+                                </div>
+                                <div class="requirement" id="req-lowercase">
+                                    <i class="fas fa-circle"></i> 1 minuscule minimum
+                                </div>
+                                <div class="requirement" id="req-digit">
+                                    <i class="fas fa-circle"></i> 1 chiffre minimum
+                                </div>
+                                <div class="requirement" id="req-special">
+                                    <i class="fas fa-circle"></i> 1 caractère spécial (@$!%*?&)
+                                </div>
+                            </div>
+
+                            <div class="invalid-feedback">
+                                {{ form_errors(registrationForm.plainPassword.first) }}
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-4">
+                            {{ form_label(registrationForm.plainPassword.second) }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                {{ form_widget(registrationForm.plainPassword.second, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'id': 'confirm-password',
+                                        'aria-describedby': 'password-match'
+                                    }
+                                }) }}
+                                <button class="btn btn-outline-secondary" type="button" id="toggle-confirm-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div id="password-match" class="form-text real-time-validation">
+                                <span id="password-validation"></span>
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ form_errors(registrationForm.plainPassword.second) }}
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    J'accepte les <a href="#" class="text-success fw-bold">conditions d'utilisation</a>
+                                    et la <a href="#" class="text-success fw-bold">politique de confidentialité</a>.
+                                </label>
+                                <div class="invalid-feedback">
+                                    Vous devez accepter les conditions d'utilisation.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg" id="submit-btn">
+                                <i class="fas fa-check me-2"></i> S'inscrire
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="demo-fill">
+                                <i class="fas fa-magic me-2"></i> Remplir avec des données de test
+                            </button>
+                        </div>
+
+                        <!-- Login Link -->
+                        <div class="text-center mt-4">
+                            <p class="text-muted mb-0">
+                                Déjà un compte ?
+                                <a href="{{ path('app_login') }}" class="text-success fw-bold">Se connecter</a>
+                            </p>
+                        </div>
+
+                        {{ form_end(registrationForm) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Récupération des éléments
+            const form = document.getElementById('registration-form');
+            const emailInput = document.querySelector('[name="registration_form[email]"]');
+            const usernameInput = document.querySelector('[name="registration_form[username]"]');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const termsCheckbox = document.getElementById('terms');
+            const submitBtn = document.getElementById('submit-btn');
+            const demoFillBtn = document.getElementById('demo-fill');
+
+            // Éléments de validation
+            const emailValidation = document.getElementById('email-validation');
+            const usernameValidation = document.getElementById('username-validation');
+            const passwordValidation = document.getElementById('password-validation');
+            const passwordStrength = document.getElementById('password-strength');
+
+            // Requirements elements
+            const reqLength = document.getElementById('req-length');
+            const reqUppercase = document.getElementById('req-uppercase');
+            const reqLowercase = document.getElementById('req-lowercase');
+            const reqDigit = document.getElementById('req-digit');
+            const reqSpecial = document.getElementById('req-special');
+
+            // Regex patterns
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+
+            // Password requirements patterns
+            const hasUppercase = /[A-Z]/;
+            const hasLowercase = /[a-z]/;
+            const hasDigit = /\d/;
+            const hasSpecial = /[@$!%*?&]/;
+
+            // Variables de statut
+            let isEmailValid = false;
+            let isUsernameValid = false;
+            let isPasswordValid = false;
+            let isPasswordMatch = false;
+            let isTermsAccepted = false;
+
+            // Fonction pour mettre à jour le bouton de soumission
+            function updateSubmitButton() {
+                const isValid = isEmailValid && isUsernameValid && isPasswordValid && isPasswordMatch && isTermsAccepted;
+                submitBtn.disabled = !isValid;
+                submitBtn.innerHTML = isValid ?
+                    '<i class="fas fa-check me-2"></i> S\'inscrire' :
+                    '<i class="fas fa-lock me-2"></i> Remplissez tous les champs';
+            }
+
+            // Fonction pour vérifier la force du mot de passe
+            function checkPasswordStrength(password) {
+                let strength = 0;
+
+                // Longueur
+                if (password.length >= 12) strength++;
+
+                // Majuscule
+                if (hasUppercase.test(password)) strength++;
+
+                // Minuscule
+                if (hasLowercase.test(password)) strength++;
+
+                // Chiffre
+                if (hasDigit.test(password)) strength++;
+
+                // Caractère spécial
+                if (hasSpecial.test(password)) strength++;
+
+                return strength;
+            }
+
+            // Fonction pour mettre à jour l'affichage de la force du mot de passe
+            function updatePasswordStrength(strength) {
+                passwordStrength.className = 'password-strength mt-2 strength-' + strength;
+
+                // Mettre à jour les exigences
+                const requirements = [
+                    password.length >= 12,
+                    hasUppercase.test(password),
+                    hasLowercase.test(password),
+                    hasDigit.test(password),
+                    hasSpecial.test(password)
+                ];
+
+                const requirementElements = [reqLength, reqUppercase, reqLowercase, reqDigit, reqSpecial];
+
+                requirements.forEach((met, index) => {
+                    const element = requirementElements[index];
+                    if (met) {
+                        element.classList.add('met');
+                        element.classList.remove('unmet');
+                        element.querySelector('i').className = 'fas fa-check-circle';
+                    } else {
+                        element.classList.add('unmet');
+                        element.classList.remove('met');
+                        element.querySelector('i').className = 'fas fa-circle';
+                    }
+                });
+
+                isPasswordValid = strength >= 4; // Au moins 4/5 critères
+                updateSubmitButton();
+            }
+
+            // Validation en temps réel de l'email
+            emailInput.addEventListener('input', function() {
+                const email = this.value.trim();
+                const isValid = emailRegex.test(email);
+
+                if (email === '') {
+                    emailValidation.textContent = '';
+                    emailValidation.className = '';
+                    isEmailValid = false;
+                } else if (isValid) {
+                    emailValidation.textContent = '✓ Email valide';
+                    emailValidation.className = 'text-success';
+                    isEmailValid = true;
+                } else {
+                    emailValidation.textContent = '✗ Format d\'email invalide';
+                    emailValidation.className = 'text-danger';
+                    isEmailValid = false;
+                }
+
+                this.classList.toggle('is-valid', isValid && email !== '');
+                this.classList.toggle('is-invalid', !isValid && email !== '');
+                updateSubmitButton();
+            });
+
+            // Validation en temps réel du username
+            usernameInput.addEventListener('input', function() {
+                const username = this.value.trim();
+                const isValid = usernameRegex.test(username);
+
+                if (username === '') {
+                    usernameValidation.textContent = '';
+                    usernameValidation.className = '';
+                    isUsernameValid = false;
+                } else if (isValid) {
+                    usernameValidation.textContent = '✓ Nom d\'utilisateur valide';
+                    usernameValidation.className = 'text-success';
+                    isUsernameValid = true;
+                } else {
+                    usernameValidation.textContent = '✗ 3-30 caractères (lettres, chiffres, underscores)';
+                    usernameValidation.className = 'text-danger';
+                    isUsernameValid = false;
+                }
+
+                this.classList.toggle('is-valid', isValid && username !== '');
+                this.classList.toggle('is-invalid', !isValid && username !== '');
+                updateSubmitButton();
+            });
+
+            // Validation en temps réel du mot de passe
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                const strength = checkPasswordStrength(password);
+
+                updatePasswordStrength(strength);
+
+                // Vérifier si les mots de passe correspondent
+                if (confirmPasswordInput.value !== '') {
+                    checkPasswordMatch();
+                }
+
+                this.classList.toggle('is-valid', strength >= 4);
+                this.classList.toggle('is-invalid', strength < 4 && password !== '');
+            });
+
+            // Vérification de la correspondance des mots de passe
+            function checkPasswordMatch() {
+                const password = passwordInput.value;
+                const confirm = confirmPasswordInput.value;
+
+                if (confirm === '') {
+                    passwordValidation.textContent = '';
+                    passwordValidation.className = '';
+                    isPasswordMatch = false;
+                } else if (password === confirm) {
+                    passwordValidation.textContent = '✓ Les mots de passe correspondent';
+                    passwordValidation.className = 'text-success';
+                    isPasswordMatch = true;
+
+                    confirmPasswordInput.classList.add('is-valid');
+                    confirmPasswordInput.classList.remove('is-invalid');
+                } else {
+                    passwordValidation.textContent = '✗ Les mots de passe ne correspondent pas';
+                    passwordValidation.className = 'text-danger';
+                    isPasswordMatch = false;
+
+                    confirmPasswordInput.classList.add('is-invalid');
+                    confirmPasswordInput.classList.remove('is-valid');
+                }
+
+                updateSubmitButton();
+            }
+
+            // Écouter les changements sur la confirmation du mot de passe
+            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+
+            // Vérification des conditions d'utilisation
+            termsCheckbox.addEventListener('change', function() {
+                isTermsAccepted = this.checked;
+                updateSubmitButton();
+
+                this.classList.toggle('is-valid', this.checked);
+                this.classList.toggle('is-invalid', !this.checked);
+            });
+
+            // Fonction pour basculer la visibilité du mot de passe
+            function togglePasswordVisibility(inputId, buttonId) {
+                const input = document.getElementById(inputId);
+                const button = document.getElementById(buttonId);
+
+                button.addEventListener('click', function() {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    this.querySelector('i').className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+                });
+            }
+
+            // Initialiser les bascules de visibilité
+            togglePasswordVisibility('password', 'toggle-password');
+            togglePasswordVisibility('confirm-password', 'toggle-confirm-password');
+
+            // Remplissage avec des données de démo
+            demoFillBtn.addEventListener('click', function() {
+                emailInput.value = 'test' + Math.floor(Math.random() * 1000) + '@example.com';
+                usernameInput.value = 'utilisateur' + Math.floor(Math.random() * 1000);
+                passwordInput.value = 'Password123!';
+                confirmPasswordInput.value = 'Password123!';
+                termsCheckbox.checked = true;
+
+                // Déclencher les événements pour la validation
+                emailInput.dispatchEvent(new Event('input'));
+                usernameInput.dispatchEvent(new Event('input'));
+                passwordInput.dispatchEvent(new Event('input'));
+                confirmPasswordInput.dispatchEvent(new Event('input'));
+                termsCheckbox.dispatchEvent(new Event('change'));
+            });
+
+            // Validation à la soumission du formulaire
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity() ||
+                    !isEmailValid ||
+                    !isUsernameValid ||
+                    !isPasswordValid ||
+                    !isPasswordMatch ||
+                    !isTermsAccepted) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    // Afficher tous les messages d'erreur
+                    form.classList.add('was-validated');
+
+                    // Faire défiler jusqu'à la première erreur
+                    const firstInvalid = form.querySelector('.is-invalid');
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstInvalid.focus();
+                    }
+                } else {
+                    // Afficher un indicateur de chargement
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Création du compte...';
+                }
+            });
+
+            // Initialiser la validation
+            emailInput.dispatchEvent(new Event('input'));
+            usernameInput.dispatchEvent(new Event('input'));
+            passwordInput.dispatchEvent(new Event('input'));
+            termsCheckbox.dispatchEvent(new Event('change'));
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Réinitialisation de mot de passe - EcoCreatorsHub</title>
+</head>
+<body style="font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;">
+<div style="max-width:600px; margin:auto; background:white; padding:30px; border-radius:8px">
+
+    <h2 style="color:#28a745">🔐 EcoCreatorsHub</h2>
+
+    <p>Bonjour,</p>
+
+    <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
+
+    {# ⭐⭐⭐⭐ URL FIXE AVEC PORT 8000 - SOLUTION DÉFINITIVE ⭐⭐⭐⭐ #}
+    {% set fixedResetUrl = 'http://localhost:8000/reset-password/reset/' ~ resetToken.token %}
+
+    <p style="text-align:center; margin:30px 0">
+        <a href="{{ fixedResetUrl }}"
+           style="background:#28a745; color:white; padding:12px 24px;
+                  text-decoration:none; border-radius:5px; font-weight:bold;">
+            Réinitialiser mon mot de passe
+        </a>
+    </p>
+
+    {# Afficher aussi l'URL générée par Symfony pour debug #}
+    {% if resetUrl is defined and resetUrl %}
+        <p style="font-size:10px; color:#999; margin-top:10px; padding:10px; background:#f5f5f5;">
+            <strong>Debug:</strong><br>
+            URL de resetUrl: {{ resetUrl }}<br>
+            URL fixe: {{ fixedResetUrl }}
+        </p>
+    {% endif %}
+
+    <p>
+        ⏳ Ce lien expirera dans
+        {{ resetToken.expirationMessageKey|trans(
+            resetToken.expirationMessageData,
+            'ResetPasswordBundle'
+        ) }}.
+    </p>
+
+    <p><strong>Lien alternatif (copiez-collez) :</strong></p>
+    <p style="background:#f8f9fa; padding:10px; border-radius:5px; word-break:break-all; font-family:monospace;">
+        {{ fixedResetUrl }}
+    </p>
+
+    <p>Si vous n’êtes pas à l’origine de cette demande, ignorez cet email.</p>
+
+    <p style="margin-top:40px; font-size:12px; color:#777">
+        © {{ "now"|date("Y") }} EcoCreatorsHub
+    </p>
+
+</div>
+</body>
+</html>

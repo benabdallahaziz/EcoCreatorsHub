@@ -1,0 +1,6 @@
+api_reset_password:
+  resource: '../../src/Controller/Api/ResetPasswordApiController.php'
+  type: attribute
+  prefix: /api
+  # Si tu utilises Symfony 6.2+ avec attributes, utilise 'type: attribute'
+  # Si Symfony < 6.2, utilise 'type: annotation'
