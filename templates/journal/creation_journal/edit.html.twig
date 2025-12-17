@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Éditer le journal - EcoCreators Hub{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0"><i class="fas fa-edit"></i> Éditer le journal</h3>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.title, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+                        {{ form_errors(form.title) }}
+                        <div class="form-text">Titre de votre projet créatif</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5, 'required': 'required'}}) }}
+                        {{ form_errors(form.description) }}
+                        <div class="form-text">Description complète du projet</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.date, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
+                        <div class="form-text">Date de création du projet (optionnel)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.images, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.images, {'attr': {'class': 'form-control'}}) }}
+                        <div class="form-text">Ajoutez de nouvelles images pour ce journal (les images existantes ne seront pas supprimées automatiquement).</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ path('journal_show', {'id': creation_journal.id}) }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-warning text-dark">
+                            <i class="fas fa-save"></i> Enregistrer les modifications
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

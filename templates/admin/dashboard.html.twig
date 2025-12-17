@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration - EcoCreatorsHub{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-primary mb-4">🛠️ Tableau de Bord Administrateur</h1>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h3>{{ stats.users }}</h3>
+                    <p class="mb-0">Utilisateurs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-palette fa-3x mb-3"></i>
+                    <h3>{{ stats.artists }}</h3>
+                    <p class="mb-0">Artistes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-book fa-3x mb-3"></i>
+                    <h3>{{ stats.journals }}</h3>
+                    <p class="mb-0">Journaux Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-eye fa-3x mb-3"></i>
+                    <h3>{{ stats.published_journals }}</h3>
+                    <p class="mb-0">Journaux Publiés</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Utilisateurs récents -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">👥 Utilisateurs Récents</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_users|length > 0 %}
+                        <div class="list-group list-group-flush">
+                            {% for user in recent_users %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ user.username }}</strong><br>
+                                        <small class="text-muted">{{ user.email }}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        {% for role in user.roles %}
+                                            {% if role == 'ROLE_ARTIST' %}
+                                                <span class="badge bg-success">Artiste</span>
+                                            {% elseif role == 'ROLE_ADMIN' %}
+                                                <span class="badge bg-danger">Admin</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Utilisateur</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <br>
+                                        <small class="text-muted">{{ user.createdAt|date('d/m/Y') }}</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucun utilisateur récent</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Journaux récents -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📖 Journaux Récents</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_journals|length > 0 %}
+                        <div class="list-group list-group-flush">
+                            {% for journal in recent_journals %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>{{ journal.title }}</strong><br>
+                                            <small class="text-muted">
+                                                par {{ journal.artist ? journal.artist.name : 'Anonyme' }}
+                                            </small>
+                                        </div>
+                                        <div class="text-end">
+                                            {% if journal.isPublished %}
+                                                <span class="badge bg-success">Publié</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Brouillon</span>
+                                            {% endif %}
+                                            <br>
+                                            <small class="text-muted">{{ journal.date|date('d/m/Y') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucun journal récent</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

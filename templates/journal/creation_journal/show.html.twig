@@ -1,0 +1,416 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ creation_journal.title }} - EcoCreatorsHub{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <!-- En-tête du journal -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('journal_index') }}">Journaux</a></li>
+                    <li class="breadcrumb-item active">{{ creation_journal.title }}</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="text-primary">{{ creation_journal.title }}</h1>
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-user me-2"></i>par {{ creation_journal.artist ? creation_journal.artist.name : 'Artiste Anonyme' }}
+                    </p>
+                    <p class="text-muted">
+                        <i class="fas fa-calendar me-2"></i>{{ creation_journal.date|date('d/m/Y') }}
+                        {% if creation_journal.category %}
+                            <span class="badge bg-primary ms-2">{{ creation_journal.category.name }}</span>
+                        {% endif %}
+                        {% if creation_journal.isPublished %}
+                            <span class="badge bg-success ms-1">Publié</span>
+                        {% else %}
+                            <span class="badge bg-warning ms-1">Brouillon</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <!-- Actions -->
+                <div class="btn-group">
+                    {% if is_granted('ROLE_USER') %}
+                        <button class="btn {{ user_liked ? 'btn-danger' : 'btn-outline-danger' }} like-btn" data-journal-id="{{ creation_journal.id }}">
+                            <i class="fas fa-heart"></i> <span class="like-count">{{ total_likes }}</span>
+                        </button>
+                        <span class="btn btn-outline-info">
+                            <i class="fas fa-eye"></i> {{ total_views }} vues
+                        </span>
+
+                        <a href="{{ path('journal_pdf', {id: creation_journal.id}) }}" class="btn btn-outline-success">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                        <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#emailModal">
+                            <i class="fas fa-envelope"></i> Email PDF
+                        </button>
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#shareModal">
+                            <i class="fas fa-share"></i> Partager
+                        </button>
+                    {% endif %}
+                    
+                    {% if is_granted('ROLE_ARTIST') and creation_journal.artist and creation_journal.artist.user == app.user %}
+                        {% if not creation_journal.isPublished %}
+                            <form method="post" action="{{ path('journal_publish', {id: creation_journal.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('publish' ~ creation_journal.id) }}">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-globe"></i> Publier
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ path('journal_unpublish', {id: creation_journal.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('unpublish' ~ creation_journal.id) }}">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-eye-slash"></i> Dépublier
+                                </button>
+                            </form>
+                        {% endif %}
+                        <a href="{{ path('journal_edit', {id: creation_journal.id}) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-edit"></i> Éditer
+                        </a>
+                        <a href="{{ path('journal_add_step', {id: creation_journal.id}) }}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Ajouter une étape
+                        </a>
+                    {% elseif is_granted('ROLE_ADMIN') %}
+                        <span class="badge bg-warning text-dark me-2">👑 Mode Admin</span>
+                        <form method="post" action="{{ path('journal_delete', {id: creation_journal.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer définitivement ce journal ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ creation_journal.id) }}">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Supprimer le journal
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Images du journal -->
+    {% if creation_journal.images|length > 0 %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">📸 Galerie</h5>
+                        <div class="row">
+                            {% for image in creation_journal.images %}
+                                <div class="col-md-4 mb-3">
+                                    <img src="{{ asset('uploads/journals/' ~ image) }}" 
+                                         class="img-fluid rounded shadow-sm" 
+                                         style="height: 200px; width: 100%; object-fit: cover; cursor: pointer;" 
+                                         alt="{{ creation_journal.title }} - Image {{ loop.index }}"
+                                         onclick="openImageModal('{{ asset('uploads/journals/' ~ image) }}')">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Description -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Description</h5>
+                    <p class="card-text">{{ creation_journal.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline des étapes -->
+    {% if steps|length > 0 %}
+        <div class="row">
+            <div class="col-12">
+                <h3 class="mb-4">🛠️ Processus de Création ({{ steps|length }} étapes)</h3>
+                
+                <div class="timeline">
+                    {% for step in steps %}
+                        <div class="timeline-item mb-4">
+                            <div class="row">
+                                <div class="col-md-1 text-center">
+                                    <div class="timeline-marker bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        {{ step.stepOrder }}
+                                    </div>
+                                    {% if not loop.last %}
+                                        <div class="timeline-line bg-primary" style="width: 2px; height: 60px; margin: 10px auto;"></div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <h5 class="card-title">{{ step.title }}</h5>
+                                                {% if is_granted('ROLE_ARTIST') and creation_journal.artist and creation_journal.artist.user == app.user %}
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a href="{{ path('step_edit', {id: step.id}) }}" class="btn btn-outline-secondary">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <form method="post" action="{{ path('step_delete', {id: step.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette étape ?')">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_step_' ~ step.id) }}">
+                                                            <button type="submit" class="btn btn-outline-danger">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                {% elseif is_granted('ROLE_ADMIN') %}
+                                                    <div class="btn-group btn-group-sm">
+                                                        <span class="badge bg-warning text-dark me-1">👑</span>
+                                                        <form method="post" action="{{ path('step_delete', {id: step.id}) }}" class="d-inline" onsubmit="return confirm('Admin: Supprimer cette étape ?')">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_step_' ~ step.id) }}">
+                                                            <button type="submit" class="btn btn-outline-danger">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <!-- Images de l'étape -->
+                                            {% if step.images|length > 0 %}
+                                                <div class="row mb-3">
+                                                    {% for image in step.images %}
+                                                        <div class="col-md-4 mb-2">
+                                                            <img src="{{ asset('uploads/steps/' ~ image) }}" 
+                                                                 class="img-fluid rounded" 
+                                                                 style="height: 150px; width: 100%; object-fit: cover;" 
+                                                                 alt="Étape {{ step.stepOrder }} - Image {{ loop.index }}">
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <p class="card-text">{{ step.content }}</p>
+                                            
+                                            <!-- Actions sur l'étape -->
+                                            {% if is_granted('ROLE_USER') %}
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-danger step-like-btn" data-step-id="{{ step.id }}">
+                                                            <i class="fas fa-heart"></i> <span class="step-like-count">0</span>
+                                                        </button>
+                                                        <button class="btn btn-outline-primary" onclick="toggleStepComments({{ step.id }})">
+                                                            <i class="fas fa-comment"></i> Commenter
+                                                        </button>
+                                                    </div>
+                                                    <small class="text-muted">Étape {{ step.stepOrder }}</small>
+                                                </div>
+                                                
+                                                <!-- Section commentaires de l'étape -->
+                                                <div id="step-comments-{{ step.id }}" class="mt-3" style="display: none;">
+                                                    <div class="border-top pt-3">
+                                                        <h6>Commentaires sur cette étape</h6>
+                                                        <div class="step-comments-list" id="step-comments-list-{{ step.id }}">
+                                                            <!-- Les commentaires seront chargés ici -->
+                                                        </div>
+                                                        <form class="step-comment-form mt-2" data-step-id="{{ step.id }}">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" placeholder="Ajouter un commentaire..." name="content">
+                                                                <button class="btn btn-primary" type="submit">
+                                                                    <i class="fas fa-paper-plane"></i>
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-list fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">Aucune étape pour le moment</h3>
+            {% if is_granted('ROLE_ARTIST') and creation_journal.artist and creation_journal.artist.user == app.user %}
+                <p class="text-muted">Commencez à documenter votre processus créatif !</p>
+                <a href="{{ path('journal_add_step', {id: creation_journal.id}) }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Ajouter la première étape
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Commentaires généraux -->
+    {% if is_granted('ROLE_USER') %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">💬 Commentaires sur le journal</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="journal-comments-list">
+                            <!-- Les commentaires seront chargés ici -->
+                        </div>
+                        <form id="journal-comment-form" class="mt-3">
+                            <div class="input-group">
+                                <textarea class="form-control" placeholder="Partagez votre avis sur ce journal..." name="content" rows="2"></textarea>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-paper-plane"></i> Commenter
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal de partage -->
+<div class="modal fade" id="shareModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Partager ce journal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" value="{{ url('journal_show', {id: creation_journal.id}) }}" readonly>
+                    <button class="btn btn-outline-secondary" onclick="copyToClipboard(this)">Copier</button>
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="https://twitter.com/intent/tweet?url={{ url('journal_show', {id: creation_journal.id})|url_encode }}&text={{ creation_journal.title|url_encode }}" target="_blank" class="btn btn-primary">
+                        <i class="fab fa-twitter"></i> Partager sur Twitter
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ url('journal_show', {id: creation_journal.id})|url_encode }}" target="_blank" class="btn btn-primary">
+                        <i class="fab fa-facebook"></i> Partager sur Facebook
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'image -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="Image">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Email PDF -->
+<div class="modal fade" id="emailModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Envoyer le PDF par email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{{ path('journal_email_pdf', {id: creation_journal.id}) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Adresse email</label>
+                        <input type="email" name="email" class="form-control" required placeholder="votre@email.com">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Envoyer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+function toggleStepComments(stepId) {
+    const commentsDiv = document.getElementById(`step-comments-${stepId}`);
+    commentsDiv.style.display = commentsDiv.style.display === 'none' ? 'block' : 'none';
+}
+
+function copyToClipboard(button) {
+    const input = button.previousElementSibling;
+    input.select();
+    document.execCommand('copy');
+    button.textContent = 'Copié !';
+    setTimeout(() => button.textContent = 'Copier', 2000);
+}
+
+function openImageModal(imageSrc) {
+    document.getElementById('modalImage').src = imageSrc;
+    new bootstrap.Modal(document.getElementById('imageModal')).show();
+}
+
+
+
+// Gestion des likes et commentaires
+document.addEventListener('DOMContentLoaded', function() {
+    // Record view on page load
+    fetch(`/journal/{{ creation_journal.id }}/view`, {
+        method: 'POST',
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    });
+
+    // Like journal
+    document.querySelector('.like-btn')?.addEventListener('click', function() {
+        const journalId = this.dataset.journalId;
+        fetch(`/journal/${journalId}/like`, {
+            method: 'POST',
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            this.querySelector('.like-count').textContent = data.total_likes;
+            this.classList.toggle('btn-danger', data.liked);
+            this.classList.toggle('btn-outline-danger', !data.liked);
+        });
+    });
+
+    // Commentaire journal
+    document.getElementById('journal-comment-form')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const content = this.querySelector('[name="content"]').value;
+        if (!content.trim()) return;
+
+        fetch(`/journal/{{ creation_journal.id }}/comment`, {
+            method: 'POST',
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            body: new FormData(this)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const commentsList = document.getElementById('journal-comments-list');
+                const commentHtml = `
+                    <div class="border-bottom pb-2 mb-2">
+                        <strong>${data.comment.author}</strong>
+                        <small class="text-muted ms-2">${data.comment.created_at}</small>
+                        <p class="mb-0 mt-1">${data.comment.content}</p>
+                    </div>
+                `;
+                commentsList.insertAdjacentHTML('beforeend', commentHtml);
+                this.reset();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

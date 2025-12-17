@@ -28,8 +28,15 @@ class CreationJournal
     #[ORM\Column(type: 'json')]
     private array $images = [];
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $isPublished = false;
+
     #[ORM\ManyToOne(inversedBy: 'creationJournals')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?JournalCategory $category = null;
+
+    #[ORM\ManyToOne(inversedBy: 'creationJournals')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Artist $artist = null;
 
     #[ORM\OneToMany(mappedBy: 'creationJournal', targetEntity: CreationStep::class, cascade: ['persist', 'remove'])]
@@ -49,5 +56,114 @@ class CreationJournal
         $this->date = new \DateTime();
     }
 
-    // Getters et setters...
+
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeInterface $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $dt): self
+    {
+        return $this->setDate($dt);
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $dt): self
+    {
+        $this->date = $dt;
+
+        return $this;
+    }
+
+    public function getArtist(): ?Artist
+    {
+        return $this->artist;
+    }
+
+    public function setArtist(?Artist $artist): self
+    {
+        $this->artist = $artist;
+
+        return $this;
+    }
+
+    public function getSteps(): Collection
+    {
+        return $this->creationSteps;
+    }
+
+    public function getCreationSteps(): Collection
+    {
+        return $this->creationSteps;
+    }
+
+    public function getIsPublished(): bool
+    {
+        return $this->isPublished;
+    }
+
+    public function setIsPublished(bool $isPublished): self
+    {
+        $this->isPublished = $isPublished;
+        return $this;
+    }
+
+    public function getImages(): array
+    {
+        return $this->images;
+    }
+
+    public function setImages(array $images): self
+    {
+        $this->images = $images;
+
+        return $this;
+    }
+
+    public function getCategory(): ?JournalCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?JournalCategory $category): self
+    {
+        $this->category = $category;
+        return $this;
+    }
 }

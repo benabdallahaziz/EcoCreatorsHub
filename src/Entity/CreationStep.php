@@ -30,5 +30,87 @@ class CreationStep
     #[ORM\JoinColumn(nullable: false)]
     private ?CreationJournal $creationJournal = null;
 
-    // Getters et setters...
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function setContent(string $content): self
+    {
+        $this->content = $content;
+        return $this;
+    }
+
+    public function getStepOrder(): ?int
+    {
+        return $this->stepOrder;
+    }
+
+    public function setStepOrder(int $stepOrder): self
+    {
+        $this->stepOrder = $stepOrder;
+        return $this;
+    }
+
+    public function getImages(): array
+    {
+        return $this->images;
+    }
+
+    public function setImages(array $images): self
+    {
+        $this->images = $images;
+        return $this;
+    }
+
+    public function getCreationJournal(): ?CreationJournal
+    {
+        return $this->creationJournal;
+    }
+
+    public function setCreationJournal(?CreationJournal $creationJournal): self
+    {
+        $this->creationJournal = $creationJournal;
+        return $this;
+    }
+
+   
+    public function getStepNumber(): ?int
+    {
+        return $this->stepOrder;
+    }
+
+   
+    public function setStepNumber(int $stepNumber): self
+    {
+        return $this->setStepOrder($stepNumber);
+    }
+
+ 
+    public function getJournal(): ?CreationJournal
+    {
+        return $this->creationJournal;
+    }
+
+
+    public function setJournal(?CreationJournal $journal): self
+    {
+        return $this->setCreationJournal($journal);
+    }
 }

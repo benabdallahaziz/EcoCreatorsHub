@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une étape - EcoCreators Hub{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0"><i class="fas fa-tasks"></i> Ajouter une étape au journal</h3>
+                    <small class="text-light">{{ journal.title }}</small>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Récolte des matériaux'}}) }}
+                        <div class="form-text">Donnez un titre clair à cette étape</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.content, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': 6, 'placeholder': 'Décrivez les détails de cette étape...'}}) }}
+                        <div class="form-text">Soyez détaillé pour que vos lecteurs comprennent chaque étape</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.images, null, {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="form-control-plaintext">
+                            {{ form_widget(form.images, {'attr': {'class': 'form-control', 'accept': 'image/*'}}) }}
+                        </div>
+                        <div class="form-text">Téléchargez des images pour illustrer cette étape (JPEG, PNG, WebP, GIF - max 5MB par image)</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ path('journal_show', {'id': journal.id}) }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-info text-white">
+                            <i class="fas fa-plus"></i> Ajouter l'étape
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau Journal - EcoCreators Hub{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="fas fa-book"></i> Créer un nouveau journal</h3>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                    
+                    {% if form.vars.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        <strong>❌ Erreurs de validation:</strong>
+                        {{ form_errors(form) }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.title, {'attr': {'class': 'form-control' ~ (form.title.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Titre de votre projet créatif', 'required': 'required'}}) }}
+                        {{ form_errors(form.title) }}
+                        <div class="form-text">Donnez un titre inspirant à votre projet</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control' ~ (form.description.vars.errors|length > 0 ? ' is-invalid' : ''), 'rows': 5, 'placeholder': 'Décrivez votre projet, votre inspiration, vos objectifs...', 'required': 'required'}}) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.date, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
+                        <div class="form-text">Date de création du projet (optionnel)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.images, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.images, {'attr': {'class': 'form-control'}}) }}
+                        <div class="form-text">Ajoutez une ou plusieurs images (JPEG/PNG/WebP/GIF). Taille max 5MB par image.</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ path('journal_index') }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Créer le journal
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endblock %}

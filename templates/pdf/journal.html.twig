@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ journal.title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; border-bottom: 2px solid #28a745; padding-bottom: 20px; margin-bottom: 30px; }
+        .step { margin-bottom: 30px; page-break-inside: avoid; }
+        .step-number { background: #28a745; color: white; padding: 5px 10px; border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ journal.title }}</h1>
+        <p>Par {{ journal.artist ? journal.artist.name : 'Artiste Anonyme' }}</p>
+        <p>{{ journal.date|date('d/m/Y') }}</p>
+    </div>
+
+    <!-- Images du journal -->
+    {% if journal.images|length > 0 %}
+        <div class="images">
+            <h2>Images</h2>
+            {% for image in journal.images %}
+                <img src="{{ absolute_url(asset('uploads/journals/' ~ image)) }}" style="max-width: 300px; margin: 10px;" alt="Image {{ loop.index }}">
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="description">
+        <h2>Description</h2>
+        <p>{{ journal.description }}</p>
+    </div>
+
+    {% if steps|length > 0 %}
+        <h2>Processus de Création</h2>
+        {% for step in steps %}
+            <div class="step">
+                <h3><span class="step-number">{{ step.stepOrder }}</span> {{ step.title }}</h3>
+                <p>{{ step.content }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>

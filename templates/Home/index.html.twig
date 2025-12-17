@@ -1,98 +1,202 @@
-{# templates/home/index.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}EcoCreatorsHub - Organic Foods{% endblock %}
+{% block title %}EcoCreatorsHub - Plateforme d'Art Écologique{% endblock %}
 
 {% block body %}
-    <!-- Hero Start -->
-    <div class="container-fluid py-5 mb-5 hero-header">
+    <!-- Hero Section -->
+    <div class="container-fluid py-5 mb-5 hero-header" style="background: linear-gradient(135deg, #81c784 0%, #4caf50 100%);">
         <div class="container py-5">
             <div class="row g-5 align-items-center">
                 <div class="col-md-12 col-lg-7">
-                    <h4 class="mb-3 text-secondary">100% Organic Foods</h4>
-                    <h1 class="mb-5 display-3 text-primary">Organic Veggies & Fruits Foods</h1>
-                    <div class="position-relative mx-auto">
-                        <input class="form-control border-2 border-secondary w-75 py-3 px-4 rounded-pill" type="search" placeholder="Search">
-                        <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; right: 25%;">Submit Now</button>
+                    <h4 class="mb-3 text-white">🌱 Art Écologique & Durable</h4>
+                    <h1 class="mb-4 display-3 text-white">Créez, Partagez, Inspirez</h1>
+                    <p class="mb-4 text-white fs-5">Rejoignez notre communauté d'artistes engagés pour un art respectueux de l'environnement. Découvrez des techniques écologiques et partagez vos créations durables.</p>
+                    <div class="d-flex gap-3">
+                        {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <a href="{{ path('app_register') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill">
+                                <i class="fas fa-user-plus me-2"></i>Rejoindre la Communauté
+                            </a>
+                        {% endif %}
+                        <a href="{{ path('app_journals') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">
+                            <i class="fas fa-book-open me-2"></i>Explorer les Journaux
+                        </a>
                     </div>
                 </div>
                 <div class="col-md-12 col-lg-5">
-                    <div id="carouselId" class="carousel slide position-relative" data-bs-ride="carousel">
-                        <div class="carousel-inner" role="listbox">
-                            <div class="carousel-item active rounded">
-                                <img src="{{ asset('img/hero-img-1.png') }}" class="img-fluid w-100 h-100 bg-secondary rounded" alt="First slide">
-                                <a href="#" class="btn px-4 py-2 text-white rounded">Fruits</a>
-                            </div>
-                            <div class="carousel-item rounded">
-                                <img src="{{ asset('img/hero-img-2.jpg') }}" class="img-fluid w-100 h-100 rounded" alt="Second slide">
-                                <a href="#" class="btn px-4 py-2 text-white rounded">Vegetables</a>
-                            </div>
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselId" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselId" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
+                    <div class="text-center">
+                        <i class="fas fa-palette fa-10x text-white opacity-75"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Hero End -->
 
-    <!-- Features Section Start -->
-    <div class="container-fluid featurs py-5">
-        <div class="container py-5">
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-3">
-                    <div class="featurs-item text-center rounded bg-light p-4">
-                        <div class="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
-                            <i class="fas fa-car-side fa-3x text-white"></i>
-                        </div>
-                        <div class="featurs-content text-center">
-                            <h5>Free Shipping</h5>
-                            <p class="mb-0">Free on order over $300</p>
-                        </div>
-                    </div>
+    <!-- Statistiques -->
+    <div class="container mb-5">
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="bg-light rounded p-4">
+                    <i class="fas fa-users fa-3x text-success mb-3"></i>
+                    <h3 class="text-primary">{{ stats.totalArtists }}</h3>
+                    <p class="mb-0">Artistes Inscrits</p>
                 </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="featurs-item text-center rounded bg-light p-4">
-                        <div class="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
-                            <i class="fas fa-user-shield fa-3x text-white"></i>
-                        </div>
-                        <div class="featurs-content text-center">
-                            <h5>Security Payment</h5>
-                            <p class="mb-0">100% security payment</p>
-                        </div>
-                    </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-light rounded p-4">
+                    <i class="fas fa-book fa-3x text-success mb-3"></i>
+                    <h3 class="text-primary">{{ stats.totalJournals }}</h3>
+                    <p class="mb-0">Journaux Publiés</p>
                 </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="featurs-item text-center rounded bg-light p-4">
-                        <div class="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
-                            <i class="fas fa-exchange-alt fa-3x text-white"></i>
-                        </div>
-                        <div class="featurs-content text-center">
-                            <h5>30 Day Return</h5>
-                            <p class="mb-0">30 day money guarantee</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="featurs-item text-center rounded bg-light p-4">
-                        <div class="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
-                            <i class="fa fa-phone-alt fa-3x text-white"></i>
-                        </div>
-                        <div class="featurs-content text-center">
-                            <h5>24/7 Support</h5>
-                            <p class="mb-0">Support every time fast</p>
-                        </div>
-                    </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-light rounded p-4">
+                    <i class="fas fa-certificate fa-3x text-success mb-3"></i>
+                    <h3 class="text-primary">{{ stats.certifiedArtists }}</h3>
+                    <p class="mb-0">Artistes Certifiés</p>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Features Section End -->
+
+    <!-- Artistes en Vedette -->
+    {% if featuredArtists|length > 0 %}
+    <div class="container mb-5">
+        <div class="text-center mb-5">
+            <h2 class="display-5 text-primary">🎨 Artistes Certifiés</h2>
+            <p class="lead">Découvrez nos artistes engagés dans l'art écologique</p>
+        </div>
+        <div class="row g-4">
+            {% for artist in featuredArtists %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-user-circle fa-4x text-success"></i>
+                        </div>
+                        <h5 class="card-title text-primary">{{ artist.name }}</h5>
+                        <p class="text-muted mb-2">{{ artist.ecoTechnique|slice(0, 50) }}{% if artist.ecoTechnique|length > 50 %}...{% endif %}</p>
+                        <p class="card-text">{{ artist.bio|slice(0, 100) }}{% if artist.bio|length > 100 %}...{% endif %}</p>
+                        {% if artist.isCertified %}
+                            <span class="badge bg-success mb-2">
+                                <i class="fas fa-certificate me-1"></i>Certifié Écologique
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ path('app_artists') }}" class="btn btn-outline-primary btn-lg">
+                Voir Tous les Artistes <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Journaux Récents -->
+    {% if recentJournals|length > 0 %}
+    <div class="container-fluid bg-light py-5 mb-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 text-primary">📖 Journaux de Création Récents</h2>
+                <p class="lead">Suivez le processus créatif de nos artistes</p>
+            </div>
+            <div class="row g-4">
+                {% for journal in recentJournals %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        {% if journal.images|length > 0 %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image fa-3x text-white"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ journal.title }}</h5>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-user me-1"></i>{{ journal.artist ? journal.artist.name : 'Artiste Anonyme' }}
+                            </p>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-calendar me-1"></i>{{ journal.date|date('d/m/Y') }}
+                            </p>
+                            <p class="card-text">{{ journal.description|slice(0, 120) }}{% if journal.description|length > 120 %}...{% endif %}</p>
+                            {% if journal.category %}
+                                <span class="badge bg-primary mb-2">{{ journal.category.name }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{{ path('journal_show', {id: journal.id}) }}" class="btn btn-outline-primary btn-sm">
+                                Lire le Journal <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ path('app_journals') }}" class="btn btn-primary btn-lg">
+                    Voir Tous les Journaux <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Fonctionnalités -->
+    <div class="container mb-5">
+        <div class="text-center mb-5">
+            <h2 class="display-5 text-primary">🌿 Pourquoi EcoCreatorsHub ?</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center p-4">
+                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-leaf fa-2x text-white"></i>
+                    </div>
+                    <h5>Art Écologique</h5>
+                    <p class="text-muted">Techniques et matériaux respectueux de l'environnement</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center p-4">
+                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-users fa-2x text-white"></i>
+                    </div>
+                    <h5>Communauté</h5>
+                    <p class="text-muted">Échangez avec des artistes passionnés d'écologie</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center p-4">
+                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-book-open fa-2x text-white"></i>
+                    </div>
+                    <h5>Journaux de Création</h5>
+                    <p class="text-muted">Documentez et partagez votre processus créatif</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center p-4">
+                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-certificate fa-2x text-white"></i>
+                    </div>
+                    <h5>Certification</h5>
+                    <p class="text-muted">Obtenez une reconnaissance de vos pratiques durables</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+    <div class="container-fluid bg-primary py-5">
+        <div class="container text-center">
+            <h2 class="text-white mb-4">Prêt à Rejoindre Notre Communauté ?</h2>
+            <p class="text-white mb-4 fs-5">Créez votre compte et commencez à partager vos créations écologiques dès aujourd'hui !</p>
+            <a href="{{ path('app_register') }}" class="btn btn-light btn-lg px-5 py-3 rounded-pill">
+                <i class="fas fa-user-plus me-2"></i>S'inscrire Gratuitement
+            </a>
+        </div>
+    </div>
+    {% endif %}
 {% endblock %}
