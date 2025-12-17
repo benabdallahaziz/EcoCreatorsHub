@@ -35,3 +35,10 @@ services:
     App\Service\FileUploader:
         arguments:
             $targetDirectory: '%kernel.project_dir%/public/uploads'
+
+    App\Service\ChatbotService:
+        arguments:
+            $httpClient: '@http_client'
+            $huggingfaceApiKey: '%env(HUGGINGFACE_API_KEY)%'
+            $openaiApiKey: '%env(OPENAI_API_KEY)%'
+            $openrouterApiKey: '%env(OPENROUTER_API_KEY)%'

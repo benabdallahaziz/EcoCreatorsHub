@@ -349,6 +349,43 @@ body::before {
     {% endif %}
 </div>
 
+<!-- AI Chatbot -->
+<div id="chatbot-container" class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1000;">
+    <div id="chatbot-toggle" class="btn btn-success rounded-circle shadow-lg" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+        <i class="fas fa-robot fa-lg"></i>
+    </div>
+    
+    <div id="chatbot-window" class="card shadow-lg" style="width: 350px; height: 450px; display: none; margin-bottom: 10px;">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-leaf me-2"></i>
+                <strong>Sankou7</strong>
+            </div>
+            <button id="chatbot-close" class="btn btn-sm btn-outline-light">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div id="chatbot-messages" class="card-body" style="height: 300px; overflow-y: auto; background: #f8f9fa;">
+            <div class="message bot-message mb-2">
+                <div class="bg-white p-2 rounded shadow-sm">
+                    <small class="text-muted">🤖 Sankou7</small>
+                    <p class="mb-0">Bonjour! Je suis Sankou7, votre assistant éco-créatif. Comment puis-je vous aider avec vos projets durables? 🌿</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-footer">
+            <div class="input-group">
+                <input type="text" id="chatbot-input" class="form-control" placeholder="Tapez votre message..." maxlength="200">
+                <button id="chatbot-send" class="btn btn-success">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 .journal-card {
     transition: all 0.3s ease;
@@ -596,6 +633,87 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         });
     }
+
+    // Chatbot functionality
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbotWindow = document.getElementById('chatbot-window');
+    const chatbotClose = document.getElementById('chatbot-close');
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotSend = document.getElementById('chatbot-send');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+
+    chatbotToggle.addEventListener('click', () => {
+        chatbotWindow.style.display = chatbotWindow.style.display === 'none' ? 'block' : 'none';
+    });
+
+    chatbotClose.addEventListener('click', () => {
+        chatbotWindow.style.display = 'none';
+    });
+
+    function addMessage(message, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'} mb-2`;
+        messageDiv.innerHTML = `
+            <div class="${isUser ? 'bg-success text-white ms-auto' : 'bg-white'} p-2 rounded shadow-sm" style="${isUser ? 'max-width: 80%;' : ''}">
+                <small class="text-muted">${isUser ? '👤 Vous' : '🤖 Sankou7'}</small>
+                <p class="mb-0">${message}</p>
+            </div>
+        `;
+        chatbotMessages.appendChild(messageDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function sendMessage() {
+        const message = chatbotInput.value.trim();
+        if (!message) return;
+
+        addMessage(message, true);
+        chatbotInput.value = '';
+        chatbotSend.disabled = true;
+
+        fetch('/api/chatbot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                addMessage(data.response);
+                if (data.suggestions) {
+                    const suggestionsDiv = document.createElement('div');
+                    suggestionsDiv.className = 'suggestions mt-2';
+                    suggestionsDiv.innerHTML = data.suggestions.map(s => 
+                        `<button class="btn btn-sm btn-outline-success me-1 mb-1 suggestion-btn">${s}</button>`
+                    ).join('');
+                    chatbotMessages.appendChild(suggestionsDiv);
+                    
+                    // Add click handlers for suggestions
+                    suggestionsDiv.querySelectorAll('.suggestion-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            chatbotInput.value = btn.textContent;
+                            sendMessage();
+                        });
+                    });
+                }
+            } else {
+                addMessage('Désolé, je ne peux pas répondre pour le moment. 😔');
+            }
+        })
+        .catch(() => {
+            addMessage('Erreur de connexion. Veuillez réessayer. 🔄');
+        })
+        .finally(() => {
+            chatbotSend.disabled = false;
+        });
+    }
+
+    chatbotSend.addEventListener('click', sendMessage);
+    chatbotInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
 });
 </script>
 {% endblock %}
