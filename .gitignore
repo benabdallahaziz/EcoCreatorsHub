@@ -1,7 +1,44 @@
-/vendor/
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
 /var/
-/node_modules/
-.env.local
-.env.*.local
+/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> IDE ###
 /.idea/
 /.vscode/
+*.swp
+*.swo
+*~
+###< IDE ###
+
+###> Node modules ###
+/node_modules/
+npm-debug.log
+yarn-error.log
+###< Node modules ###
+
+###> Uploads ###
+/public/uploads/
+###< Uploads ###
+
+###> Sensitive files ###
+.env
+###< Sensitive files ###
+
+# Keep .env.example for other developers
+!.env.example
