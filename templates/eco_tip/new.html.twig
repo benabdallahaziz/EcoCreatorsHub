@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Astuce Écologique - EcoCreatorsHub{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="fas fa-lightbulb"></i> Partager une astuce écologique</h3>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                    
+                    {% if form.vars.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        <strong>❌ Erreurs de validation:</strong>
+                        {{ form_errors(form) }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.title, {'attr': {'class': 'form-control' ~ (form.title.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Titre de votre astuce', 'required': 'required'}}) }}
+                        {{ form_errors(form.title) }}
+                        <div class="form-text">Donnez un titre clair à votre astuce</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.content, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.content, {'attr': {'class': 'form-control' ~ (form.content.vars.errors|length > 0 ? ' is-invalid' : ''), 'rows': 5, 'placeholder': 'Décrivez votre astuce écologique en détail...', 'required': 'required'}}) }}
+                        {{ form_errors(form.content) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.category, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.category, {'attr': {'class': 'form-select' ~ (form.category.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                        {{ form_errors(form.category) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.image, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+                        <div class="form-text">Ajoutez une image pour illustrer votre astuce (optionnel)</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ path('eco_tip_index') }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Partager l'astuce
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

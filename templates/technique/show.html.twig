@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ technique.name }} - EcoCreatorsHub{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-lg">
+                {% if technique.images and technique.images|length > 0 %}
+                    <div id="techniqueCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for key, image in technique.images %}
+                                <div class="carousel-item {{ key == 0 ? 'active' : '' }}">
+                                    <img src="{{ asset('uploads/' ~ image) }}" class="d-block w-100" alt="{{ technique.name }}" style="height: 400px; object-fit: cover;">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if technique.images|length > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#techniqueCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#techniqueCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h1 class="card-title text-primary">{{ technique.name }}</h1>
+                            <div class="mb-3">
+                                <span class="badge bg-success me-2">{{ technique.category }}</span>
+                                <span class="badge bg-warning">{{ technique.difficulty }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <div class="btn-group">
+                                <a href="{{ path('technique_edit', {id: technique.id}) }}" class="btn btn-outline-warning">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <form method="post" action="{{ path('technique_delete', {id: technique.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette technique ?')">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ technique.id) }}">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-info-circle text-primary me-2"></i>Description</h5>
+                        <p class="text-muted">{{ technique.description }}</p>
+                    </div>
+                    
+                    {% if technique.materials %}
+                        <div class="mb-4">
+                            <h5><i class="fas fa-list text-success me-2"></i>Matériaux nécessaires</h5>
+                            <div class="bg-light p-3 rounded">
+                                {{ technique.materials|nl2br }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if technique.steps %}
+                        <div class="mb-4">
+                            <h5><i class="fas fa-tasks text-warning me-2"></i>Étapes à suivre</h5>
+                            <div class="bg-light p-3 rounded">
+                                {{ technique.steps|nl2br }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <a href="{{ path('technique_index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour aux techniques
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{
+  "techniques": [
+    {
+      "name": "Upcycling de bouteilles en vases",
+      "description": "Transformez des bouteilles en verre ordinaires en magnifiques vases décorés avec des techniques écologiques",
+      "category": "Upcycling",
+      "difficulty": "Facile",
+      "materials": "Bouteilles en verre, peinture acrylique écologique, pinceaux, colle naturelle",
+      "steps": "1. Nettoyer et sécher complètement les bouteilles\n2. Poncer légèrement la surface pour la préparation\n3. Appliquer une couche de base de peinture écologique\n4. Créer les motifs décorés\n5. Laisser sécher 24 heures"
+    },
+    {
+      "name": "Création de papier mâché recyclé",
+      "description": "Fabriquer du papier mâché à partir de papier recyclé pour vos projets de sculpture",
+      "category": "Art Recyclé",
+      "difficulty": "Facile",
+      "materials": "Papier journal, colle naturelle, eau, bol",
+      "steps": "1. Déchirer le papier journal en petits morceaux\n2. Tremper dans l'eau chaude\n3. Mélanger avec la colle naturelle\n4. Utiliser la pâte sur votre armature"
+    },
+    {
+      "name": "Teinture naturelle avec les plantes",
+      "description": "Créer des teintures naturelles pour colorer vos œuvres d'art et textiles",
+      "category": "Art Naturel",
+      "difficulty": "Moyen",
+      "materials": "Plantes (betteraves, épinards, curcuma), eau, tissu ou papier, casserole",
+      "steps": "1. Récolter ou acheter les plantes\n2. Faire bouillir dans de l'eau pendant 30 minutes\n3. Filtrer le liquide\n4. Tremper le tissu ou papier\n5. Laisser sécher"
+    },
+    {
+      "name": "Art zéro déchet avec plastique recyclé",
+      "description": "Transformer le plastique recyclé en objets d'art décoratifs",
+      "category": "Art Zéro Déchet",
+      "difficulty": "Moyen",
+      "materials": "Plastique recyclé, chaleur, moules, teintures naturelles",
+      "steps": "1. Collecter le plastique\n2. Le faire fondre doucement\n3. Couler dans des moules\n4. Laisser refroidir et démouler"
+    }
+  ],
+  "tips": [
+    {
+      "title": "Comment bien préparer le papier pour l'art recyclé",
+      "content": "Avant de commencer votre projet, assurez-vous que le papier est bien séché et lissé. Les traces d'humidité peuvent compromettre votre œuvre. Pour un meilleur résultat, utilisez du papier de qualité supérieure.",
+      "category": "Art Recyclé"
+    },
+    {
+      "title": "Conseils pour l'upcycling de vêtements",
+      "content": "Transformez vos vieux vêtements en accessoires ou en art. Vous pouvez les découper, les teindre avec des teintures naturelles ou les assembler pour créer de nouveaux designs.",
+      "category": "Upcycling"
+    },
+    {
+      "title": "Les meilleures plantes pour la teinture naturelle",
+      "content": "Les betteraves donnent des roses, les épinards du vert, le curcuma du jaune, et les oignons du brun. Expérimentez avec ce que vous trouvez dans votre jardin!",
+      "category": "Art Naturel"
+    },
+    {
+      "title": "Réduire les déchets lors de vos projets artistiques",
+      "content": "Gardez tous vos restes: peinture, tissus, papier. Ils peuvent être réutilisés pour créer de la texture ou des collages. Rien ne doit être jeté!",
+      "category": "Art Zéro Déchet"
+    },
+    {
+      "title": "Certification écologique de votre art",
+      "content": "Utilisez uniquement des matériaux certifiés écologiques. Documentez vos sources et processus pour que les acheteurs puissent vérifier la durabilité de votre œuvre.",
+      "category": "Art Durable"
+    }
+  ]
+}

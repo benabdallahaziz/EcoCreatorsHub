@@ -67,6 +67,8 @@
                         <a href="{{ path('app_home') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Accueil</a>
                         <a href="{{ path('app_artists') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_artists' ? 'active' : '' }}">Artistes</a>
                         <a href="{{ path('app_journals') }}" class="nav-item nav-link {{ app.request.get('_route') starts with 'journal_' ? 'active' : '' }}">Journaux</a>
+                        <a href="{{ path('technique_index') }}" class="nav-item nav-link {{ app.request.get('_route') starts with 'technique_' ? 'active' : '' }}">Techniques</a>
+                        <a href="{{ path('eco_tip_index') }}" class="nav-item nav-link {{ app.request.get('_route') starts with 'eco_tip_' ? 'active' : '' }}">Astuces Éco</a>
                         <a href="{{ path('app_materials') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_materials' ? 'active' : '' }}">Matériaux</a>
                         <a href="{{ path('app_tutorials') }}" class="nav-item nav-link {{ app.request.get('_route') == 'app_tutorials' ? 'active' : '' }}">Tutoriels</a>
                     </div>
@@ -135,6 +137,16 @@
 
 <!-- Main Content with proper spacing -->
 <div style="padding-top: 120px; min-height: 100vh;">
+    <div class="container mt-3">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
     {% block body %}{% endblock %}
 </div>
 

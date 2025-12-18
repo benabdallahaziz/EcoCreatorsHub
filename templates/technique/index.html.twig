@@ -1,0 +1,267 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Techniques Écologiques - EcoCreatorsHub{% endblock %}
+
+{% block body %}
+<style>
+.tech-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.technique-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+.technique-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+.difficulty-badge {
+    border-radius: 20px;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+}
+.tech-icon {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+.modern-pagination {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 25px;
+    padding: 0.5rem 3rem;
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+    display: inline-block;
+    width: auto;
+    min-width: 500px;
+}
+.modern-pagination .pagination {
+    margin: 0;
+    gap: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.modern-pagination .page-link {
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 15px;
+    padding: 0.3rem 0.8rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    min-width: 40px;
+    text-align: center;
+}
+.modern-pagination .page-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    transform: translateY(-1px);
+}
+.modern-pagination .page-item.active .page-link {
+    background: white;
+    color: #667eea;
+    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+.page-counter {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+}
+</style>
+
+<div class="tech-gradient py-5">
+    <div class="container">
+        <div class="text-center text-white">
+            <h1 class="display-4 mb-3">🛠️ Techniques Écologiques</h1>
+            <p class="lead mb-4">Découvrez et maîtrisez les techniques créatives durables</p>
+            {% if is_granted('ROLE_USER') %}
+                <a href="{{ path('technique_new') }}" class="btn btn-light btn-lg shadow">
+                    <i class="fas fa-plus me-2"></i>Ajouter une technique
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            
+            <!-- Search Bar -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form method="GET">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Rechercher une technique..." value="{{ current_search }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Rechercher
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <input type="hidden" name="search" value="{{ current_search }}">
+                        <div class="col-md-6">
+                            <label class="form-label">Catégorie</label>
+                            <select name="category" class="form-select" onchange="this.form.submit()">
+                                <option value="">Toutes les catégories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category }}" {{ current_category == category ? 'selected' : '' }}>{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Difficulté</label>
+                            <select name="difficulty" class="form-select" onchange="this.form.submit()">
+                                <option value="">Tous niveaux</option>
+                                {% for difficulty in difficulties %}
+                                    <option value="{{ difficulty }}" {{ current_difficulty == difficulty ? 'selected' : '' }}>{{ difficulty }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Techniques Grid -->
+            {% if techniques|length > 0 %}
+                <div class="row g-4">
+                    {% for technique in techniques %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card technique-card h-100">
+                                {% if technique.images and technique.images|length > 0 %}
+                                    <div class="position-relative">
+                                        <img src="{{ asset('uploads/' ~ technique.images[0]) }}" class="card-img-top" alt="{{ technique.name }}" style="height: 200px; object-fit: cover;">
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge difficulty-badge" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);">{{ technique.difficulty }}</span>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <div class="tech-icon">
+                                            <i class="fas fa-tools fa-2x text-white"></i>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title text-primary fw-bold">{{ technique.name }}</h5>
+                                    <p class="card-text flex-grow-1">{{ technique.description|length > 100 ? technique.description|slice(0, 100) ~ '...' : technique.description }}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="badge" style="background: linear-gradient(45deg, #28a745, #20c997);">{{ technique.category }}</span>
+                                        {% if not (technique.images and technique.images|length > 0) %}
+                                            <span class="badge difficulty-badge" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);">{{ technique.difficulty }}</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-calendar me-1"></i>{{ technique.createdAt|date('d/m/Y') }}
+                                        </small>
+                                        {% if technique.materials and technique.materials|length > 0 %}
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-list me-1"></i>{{ technique.materials|length }} matériaux
+                                            </small>
+                                        {% endif %}
+                                        {% if technique.relatedEcoTips|length > 0 %}
+                                            <small class="text-success d-block">
+                                                <i class="fas fa-lightbulb me-1"></i>{{ technique.relatedEcoTips|length }} astuce(s) liée(s)
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ path('technique_show', {id: technique.id}) }}" class="btn btn-success">
+                                            <i class="fas fa-eye me-2"></i>Voir la technique
+                                        </a>
+                                        
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('technique_edit', {id: technique.id}) }}" class="btn btn-outline-warning btn-sm">
+                                                <i class="fas fa-edit"></i> Modifier
+                                            </a>
+                                            {% if is_granted('ROLE_ADMIN') %}
+                                                <form method="post" action="{{ path('technique_delete', {id: technique.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette technique ?')">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ technique.id) }}">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                        <i class="fas fa-trash"></i> Supprimer
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Modern Horizontal Pagination -->
+                {% if total_pages > 1 %}
+                    <div class="text-center mt-5">
+                        <div class="modern-pagination">
+                            <nav>
+                                <ul class="pagination justify-content-center align-items-center">
+                                    {% if current_page > 1 %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ current_page - 1 }}&category={{ current_category }}&difficulty={{ current_difficulty }}&search={{ current_search }}">
+                                                <i class="fas fa-chevron-left"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% for page in 1..total_pages %}
+                                        <li class="page-item {{ page == current_page ? 'active' : '' }}">
+                                            <a class="page-link" href="?page={{ page }}&category={{ current_category }}&difficulty={{ current_difficulty }}&search={{ current_search }}">{{ page }}</a>
+                                        </li>
+                                    {% endfor %}
+                                    
+                                    {% if current_page < total_pages %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ current_page + 1 }}&category={{ current_category }}&difficulty={{ current_difficulty }}&search={{ current_search }}">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            <div class="page-counter text-center">
+                                Page {{ current_page }} sur {{ total_pages }}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-tools fa-5x text-success opacity-50"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">Aucune technique trouvée</h3>
+                    <p class="text-muted mb-4">Essayez de modifier vos filtres ou revenez plus tard.</p>
+                    {% if is_granted('ROLE_USER') %}
+                        <a href="{{ path('technique_new') }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-plus me-2"></i>Créer la première technique
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la Technique - EcoCreatorsHub{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0"><i class="fas fa-edit"></i> Modifier la technique</h3>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                    
+                    {% if form.vars.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        <strong>❌ Erreurs de validation:</strong>
+                        {{ form_errors(form) }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.name, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'required': 'required'}}) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.category, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
+                                {{ form_errors(form.category) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.difficulty, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.difficulty, {'attr': {'class': 'form-select'}}) }}
+                                {{ form_errors(form.difficulty) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.materials, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.materials, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                        {{ form_errors(form.materials) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.steps, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.steps, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+                        {{ form_errors(form.steps) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.images, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.images, {'attr': {'class': 'form-control'}}) }}
+                        <div class="form-text">Changer les images (optionnel)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.relatedEcoTips, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.relatedEcoTips, {'attr': {'class': 'form-select'}}) }}
+                        <div class="form-text">Sélectionnez les astuces écologiques liées (maintenez Ctrl pour sélectionner plusieurs)</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ path('technique_index') }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save"></i> Mettre à jour
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

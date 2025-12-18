@@ -1,0 +1,220 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Astuces Écologiques - EcoCreatorsHub{% endblock %}
+
+{% block body %}
+<style>
+.eco-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.tip-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+.tip-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+.category-badge {
+    border-radius: 20px;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+}
+.vote-section {
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    padding: 1rem;
+}
+.modern-pagination {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 25px;
+    padding: 0.5rem 3rem;
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+    display: inline-block;
+    width: auto;
+    min-width: 500px;
+}
+.modern-pagination .pagination {
+    margin: 0;
+    gap: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.modern-pagination .page-link {
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 15px;
+    padding: 0.3rem 0.8rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    min-width: 40px;
+    text-align: center;
+}
+.modern-pagination .page-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    transform: translateY(-1px);
+}
+.modern-pagination .page-item.active .page-link {
+    background: white;
+    color: #667eea;
+    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+.page-counter {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+}
+</style>
+
+<div class="eco-gradient py-5">
+    <div class="container">
+        <div class="text-center text-white">
+            <h1 class="display-4 mb-3">💡 Astuces Écologiques</h1>
+            <p class="lead mb-4">Partagez et découvrez des conseils pour un mode de vie plus durable</p>
+            <a href="{{ path('eco_tip_new') }}" class="btn btn-light btn-lg shadow">
+                <i class="fas fa-plus me-2"></i>Partager une astuce
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+
+            <!-- Search Bar -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form method="GET">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Rechercher une astuce..." value="{{ current_search }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Rechercher
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <input type="hidden" name="search" value="{{ current_search }}">
+                        <div class="col-md-6">
+                            <label class="form-label">Catégorie</label>
+                            <select name="category" class="form-select" onchange="this.form.submit()">
+                                <option value="">Toutes les catégories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category }}" {{ current_category == category ? 'selected' : '' }}>{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Trier par</label>
+                            <select name="sort" class="form-select" onchange="this.form.submit()">
+                                <option value="recent" {{ current_sort == 'recent' ? 'selected' : '' }}>Plus récentes</option>
+                                <option value="popular" {{ current_sort == 'popular' ? 'selected' : '' }}>Plus populaires</option>
+                                <option value="oldest" {{ current_sort == 'oldest' ? 'selected' : '' }}>Plus anciennes</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Eco Tips List -->
+            {% if eco_tips|length > 0 %}
+                <div class="row g-4">
+                    {% for tip in eco_tips %}
+                        <div class="col-lg-6">
+                            <div class="card tip-card h-100">
+                                {% if tip.image and tip.image|length > 0 %}
+                                    <div class="position-relative">
+                                        <img src="{{ asset('uploads/' ~ tip.image[0]) }}" class="card-img-top" alt="{{ tip.title }}" style="height: 200px; object-fit: cover;">
+                                        <span class="position-absolute top-0 end-0 m-2 badge category-badge" style="background: linear-gradient(45deg, #28a745, #20c997);">{{ tip.category }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title text-primary fw-bold">{{ tip.title }}</h5>
+                                    <p class="card-text flex-grow-1">{{ tip.content|length > 120 ? tip.content|slice(0, 120) ~ '...' : tip.content }}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-end mt-auto">
+                                        <div class="flex-grow-1">
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-user me-1"></i>{{ tip.author.username }}
+                                            </small>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>{{ tip.createdAt|date('d/m/Y') }}
+                                            </small>
+                                            {% if not (tip.image and tip.image|length > 0) %}
+                                                <span class="badge category-badge ms-2" style="background: linear-gradient(45deg, #28a745, #20c997);">{{ tip.category }}</span>
+                                            {% endif %}
+                                            
+                                            {% if app.user and (tip.author == app.user or is_granted('ROLE_ADMIN')) %}
+                                                <div class="mt-2">
+                                                    <a href="{{ path('eco_tip_edit', {id: tip.id}) }}" class="btn btn-sm btn-outline-warning me-1">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form method="post" action="{{ path('eco_tip_delete', {id: tip.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette astuce ?')">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ tip.id) }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {# Pagination removed — afficher toutes les astuces #}
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-seedling fa-5x text-success opacity-50"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">Aucune astuce trouvée</h3>
+                    <p class="text-muted mb-4">Soyez le premier à partager une astuce écologique !</p>
+                    <a href="{{ path('eco_tip_new') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus me-2"></i>Créer la première astuce
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.vote-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tipId = this.dataset.tipId;
+        const isUpvote = this.dataset.upvote === 'true';
+        
+        fetch(`/eco-tips/${tipId}/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `upvote=${isUpvote}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.closest('.col-md-4').querySelector('.vote-count').textContent = data.votes;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

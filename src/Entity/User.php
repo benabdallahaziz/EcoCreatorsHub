@@ -52,12 +52,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Artist $artist = null;
 
+    #[ORM\OneToMany(mappedBy: 'author', targetEntity: EcoTip::class)]
+    private Collection $ecoTips;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: EcoTipVote::class)]
+    private Collection $ecoTipVotes;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
+        $this->ecoTips = new ArrayCollection();
+        $this->ecoTipVotes = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->roles = ['ROLE_USER'];
     }
@@ -295,6 +303,60 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         $this->artist = $artist;
 
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EcoTip>
+     */
+    public function getEcoTips(): Collection
+    {
+        return $this->ecoTips;
+    }
+
+    public function addEcoTip(EcoTip $ecoTip): static
+    {
+        if (!$this->ecoTips->contains($ecoTip)) {
+            $this->ecoTips->add($ecoTip);
+            $ecoTip->setAuthor($this);
+        }
+        return $this;
+    }
+
+    public function removeEcoTip(EcoTip $ecoTip): static
+    {
+        if ($this->ecoTips->removeElement($ecoTip)) {
+            if ($ecoTip->getAuthor() === $this) {
+                $ecoTip->setAuthor(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EcoTipVote>
+     */
+    public function getEcoTipVotes(): Collection
+    {
+        return $this->ecoTipVotes;
+    }
+
+    public function addEcoTipVote(EcoTipVote $ecoTipVote): static
+    {
+        if (!$this->ecoTipVotes->contains($ecoTipVote)) {
+            $this->ecoTipVotes->add($ecoTipVote);
+            $ecoTipVote->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeEcoTipVote(EcoTipVote $ecoTipVote): static
+    {
+        if ($this->ecoTipVotes->removeElement($ecoTipVote)) {
+            if ($ecoTipVote->getUser() === $this) {
+                $ecoTipVote->setUser(null);
+            }
+        }
         return $this;
     }
 }
