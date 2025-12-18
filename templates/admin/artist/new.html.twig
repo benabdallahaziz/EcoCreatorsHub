@@ -20,6 +20,73 @@
             border: 4px solid #fff;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+
+        /* Styles pour les messages d'erreur en temps réel */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control.is-valid {
+            border-color: #198754;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        .character-counter {
+            font-size: 0.8rem;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+
+        .character-counter.near-limit {
+            color: #ffc107;
+        }
+
+        .character-counter.over-limit {
+            color: #dc3545;
+        }
+
+        .form-errors {
+            border: 1px solid #dc3545;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            background-color: #f8d7da;
+        }
+
+        .form-errors h5 {
+            color: #721c24;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-errors ul {
+            margin-bottom: 0;
+            padding-left: 1rem;
+        }
+
+        .form-errors li {
+            color: #721c24;
+        }
     </style>
 {% endblock %}
 
@@ -34,7 +101,6 @@
             </ol>
         </nav>
 
-        <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="h3 mb-0"><i class="fas fa-user-plus me-2 text-primary"></i>Créer un nouvel artiste</h1>
@@ -45,32 +111,28 @@
             </a>
         </div>
 
-        <!-- Messages flash -->
+        <!-- Flash messages -->
         {% for type in ['success', 'error', 'warning'] %}
             {% for message in app.flashes(type) %}
                 <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
-                    <i class="fas fa-{{ type == 'success' ? 'check-circle' : type == 'error' ? 'exclamation-circle' : 'exclamation-triangle' }} me-2"></i>
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         {% endfor %}
 
-        <!-- Warning si pas d'utilisateurs disponibles -->
         {% if available_users_count == 0 %}
             <div class="alert alert-warning">
-                <div class="d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="fas fa-exclamation-triangle fa-2x"></i>
-                    </div>
-                    <div>
-                        <h5 class="alert-heading">Aucun utilisateur disponible !</h5>
-                        <p class="mb-2">Vous devez d'abord créer un utilisateur avant de pouvoir créer un artiste.</p>
-                        <a href="{{ path('app_admin_user_new') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-user-plus me-2"></i>Créer un nouvel utilisateur
-                        </a>
-                    </div>
-                </div>
+                Aucun utilisateur disponible ! Créez un utilisateur avant de créer un artiste.
+                <a href="{{ path('app_admin_user_new') }}" class="btn btn-primary btn-sm">Créer un nouvel utilisateur</a>
+            </div>
+        {% endif %}
+
+        <!-- Affichage des erreurs du formulaire -->
+        {% if form.vars.errors|length > 0 %}
+            <div class="form-errors">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Le formulaire contient des erreurs :</h5>
+                {{ form_errors(form) }}
             </div>
         {% endif %}
 
@@ -82,9 +144,7 @@
                         <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Informations de l'artiste</h5>
                     </div>
                     <div class="card-body">
-                        {{ form_start(form, {
-                            'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'id': 'artist-form'}
-                        }) }}
+                        {{ form_start(form, {'attr': {'id': 'artist-form', 'novalidate': 'novalidate'}}) }}
 
                         <div class="row mb-4">
                             <div class="col-md-4 text-center">
@@ -94,63 +154,108 @@
                             <div class="col-md-8">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        {{ form_label(form.name, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                                        {{ form_widget(form.name, {'attr': {'class': 'form-control','placeholder': 'Ex: Marie EcoArt','oninput':'updateAvatarPreview(this.value)'}}) }}
-                                        <div class="text-danger small mt-1">{{ form_errors(form.name) }}</div>
+                                        {{ form_row(form.name, {
+                                            'attr': {
+                                                'oninput': 'updateAvatarPreview(this.value); validateName(this)',
+                                                'onblur': 'validateName(this)',
+                                                'data-min-length': '2',
+                                                'data-max-length': '255',
+                                                'data-regex': '^[a-zA-ZÀ-ÿ0-9\\s\\-\'\\.]+$',
+                                                'data-regex-message': 'Seules les lettres, chiffres, espaces, tirets, apostrophes et points sont autorisés'
+                                            },
+                                            'label_attr': {'class': 'form-label'}
+                                        }) }}
+                                        <div class="invalid-feedback" id="name-error">
+                                            Le nom de l'artiste doit contenir entre 2 et 255 caractères et ne peut contenir que des lettres, chiffres, espaces, tirets, apostrophes et points.
+                                        </div>
+                                        <div class="character-counter" id="name-counter"></div>
                                     </div>
+
                                     <div class="col-md-6 mb-3">
-                                        {{ form_label(form.ecoTechnique, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                                        {{ form_widget(form.ecoTechnique, {'attr': {'class': 'form-control','placeholder': 'Ex: Recyclage, Upcycling, etc.'}}) }}
-                                        <div class="text-danger small mt-1">{{ form_errors(form.ecoTechnique) }}</div>
+                                        {{ form_row(form.ecoTechnique, {
+                                            'attr': {
+                                                'oninput': 'validateEcoTechnique(this)',
+                                                'onblur': 'validateEcoTechnique(this)',
+                                                'data-min-length': '3',
+                                                'data-max-length': '255'
+                                            },
+                                            'label_attr': {'class': 'form-label'}
+                                        }) }}
+                                        <div class="invalid-feedback" id="ecoTechnique-error">
+                                            La technique écologique doit contenir entre 3 et 255 caractères.
+                                        </div>
+                                        <div class="character-counter" id="ecoTechnique-counter"></div>
                                     </div>
+
                                     <div class="col-md-6 mb-3">
-                                        {{ form_label(form.user, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                                        {{ form_widget(form.user, {'attr': {'class': 'form-control form-select'}}) }}
-                                        <div class="text-danger small mt-1">{{ form_errors(form.user) }}</div>
+                                        {{ form_row(form.user, {
+                                            'attr': {
+                                                'onchange': 'validateUser(this)',
+                                                'required': 'required'
+                                            },
+                                            'label_attr': {'class': 'form-label'}
+                                        }) }}
+                                        <div class="invalid-feedback" id="user-error">
+                                            Vous devez sélectionner un utilisateur.
+                                        </div>
                                         {% if available_users_count > 0 %}
-                                            <small class="text-success"><i class="fas fa-check-circle me-1"></i>{{ available_users_count }} utilisateur(s) disponible(s)</small>
+                                            <small class="text-success">{{ available_users_count }} utilisateur(s) disponible(s)</small>
                                         {% endif %}
                                     </div>
+
                                     <div class="col-md-6 mb-3">
-                                        <div class="form-check form-switch mt-4">
-                                            {{ form_widget(form.isCertified, {'attr': {'class': 'form-check-input','role': 'switch'}}) }}
-                                            <label class="form-check-label fw-bold" for="{{ form.isCertified.vars.id }}">
-                                                Certifier cet artiste
+                                        <div class="form-check form-switch">
+                                            {{ form_widget(form.isCertified, {
+                                                'attr': {
+                                                    'class': 'form-check-input',
+                                                    'onchange': 'toggleCertification(this)'
+                                                }
+                                            }) }}
+                                            <label class="form-check-label" for="{{ form.isCertified.vars.id }}">
+                                                <strong>Certifier cet artiste</strong>
                                             </label>
                                         </div>
-                                        <small class="text-muted">Les artistes certifiés bénéficient d'un badge spécial</small>
+                                        <small class="text-muted">Les artistes certifiés bénéficient d'un badge spécial et de plus de visibilité</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Biographie -->
                         <div class="mb-4">
-                            {{ form_label(form.bio, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                            {{ form_widget(form.bio, {'attr': {'class': 'form-control','rows': 6,'placeholder': 'Décrivez le parcours, les techniques et l\'approche écologique de l\'artiste...'}}) }}
-                            <div class="text-danger small mt-1">{{ form_errors(form.bio) }}</div>
-                            <small class="text-muted">Cette biographie sera visible publiquement</small>
-                        </div>
-
-                        <!-- Photo de profil -->
-                        <div class="mb-4">
-                            {{ form_label(form.profilePicture, null, {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.profilePicture, {'attr': {'class': 'form-control','placeholder': 'https://exemple.com/photo.jpg'}}) }}
-                            <div class="text-danger small mt-1">{{ form_errors(form.profilePicture) }}</div>
-                            <small class="text-muted">Laissez vide pour utiliser les initiales</small>
-                        </div>
-
-                        <!-- Validation errors -->
-                        {% if not form.vars.valid %}
-                            <div class="alert alert-danger">
-                                <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Veuillez corriger les erreurs ci-dessus</h6>
+                            {{ form_row(form.bio, {
+                                'attr': {
+                                    'oninput': 'validateBio(this)',
+                                    'onblur': 'validateBio(this)',
+                                    'data-min-length': '50',
+                                    'data-max-length': '2000'
+                                },
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                            <div class="invalid-feedback" id="bio-error">
+                                La biographie doit contenir entre 50 et 2000 caractères.
                             </div>
-                        {% endif %}
+                            <div class="character-counter" id="bio-counter"></div>
+                        </div>
 
-                        <!-- Boutons -->
+                        <div class="mb-4">
+                            {{ form_row(form.profilePicture, {
+                                'attr': {
+                                    'oninput': 'validateProfilePicture(this)',
+                                    'onblur': 'validateProfilePicture(this)',
+                                    'data-max-length': '255'
+                                },
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                            <div class="invalid-feedback" id="profilePicture-error">
+                                L'URL doit être valide et ne peut pas dépasser 255 caractères.
+                            </div>
+                            <div class="character-counter" id="profilePicture-counter"></div>
+                            <small class="text-muted">Laissez vide pour utiliser les initiales comme avatar</small>
+                        </div>
+
                         <div class="d-flex justify-content-between mt-4 pt-3 border-top">
-                            <a href="{{ path('app_admin_artist_index') }}" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Annuler</a>
-                            <button type="submit" class="btn btn-success" {% if available_users_count == 0 %}disabled{% endif %}>
+                            <a href="{{ path('app_admin_artist_index') }}" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" id="submit-btn" class="btn btn-success" {% if available_users_count == 0 %}disabled{% endif %}>
                                 <i class="fas fa-check me-2"></i>Créer l'artiste
                             </button>
                         </div>
@@ -165,15 +270,22 @@
 
 {% block javascripts %}
     {{ parent() }}
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation des éléments
+            const nameInput = document.querySelector('#{{ form.name.vars.id }}');
+            const preview = document.getElementById('avatarPreview');
+            const form = document.getElementById('artist-form');
+
+            // Initialisation des compteurs de caractères
+            initCharacterCounters();
+
+            // Fonction pour mettre à jour l'avatar
             function updateAvatarPreview(name) {
-                const preview = document.getElementById('avatarPreview');
-                preview.textContent = name && name.length >= 2 ? name.substring(0, 2).toUpperCase() : 'NA';
+                preview.textContent = name && name.length >= 2 ? name.substring(0,2).toUpperCase() : 'NA';
             }
 
-            const nameInput = document.querySelector('#{{ form.name.vars.id }}');
+            // Initialisation de l'avatar
             if (nameInput) {
                 updateAvatarPreview(nameInput.value);
                 nameInput.addEventListener('input', function() {
@@ -181,32 +293,311 @@
                 });
             }
 
-            const form = document.getElementById('artist-form');
+            // Validation du formulaire avant soumission
             if (form) {
-                const submitBtn = form.querySelector('button[type="submit"]');
-                form.addEventListener('submit', function() {
+                const submitBtn = form.querySelector('#submit-btn');
+
+                form.addEventListener('submit', function(e) {
+                    // Valider tous les champs avant soumission
+                    const isValid = validateAllFields();
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        showValidationErrors();
+                        return false;
+                    }
+
+                    // Désactiver le bouton pendant la soumission
                     if (submitBtn) {
                         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Création...';
                         submitBtn.disabled = true;
                     }
                 });
+            }
+        });
 
-                if (document.querySelector('.text-danger') || document.querySelector('.alert-danger')) {
-                    if (submitBtn) {
-                        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Créer l\'artiste';
-                        submitBtn.disabled = false;
-                    }
+        // Fonctions de validation
+
+        function validateName(input) {
+            const value = input.value.trim();
+            const minLength = parseInt(input.dataset.minLength) || 2;
+            const maxLength = parseInt(input.dataset.maxLength) || 255;
+            const regexPattern = input.dataset.regex || '^[a-zA-ZÀ-ÿ0-9\\s\\-\'\\.]+$';
+            const regex = new RegExp(regexPattern, 'u');
+            const errorElement = document.getElementById('name-error');
+
+            let isValid = true;
+            let errorMessage = '';
+
+            if (value.length === 0) {
+                isValid = false;
+                errorMessage = 'Le nom de l\'artiste est obligatoire.';
+            } else if (value.length < minLength) {
+                isValid = false;
+                errorMessage = `Le nom doit contenir au moins ${minLength} caractères.`;
+            } else if (value.length > maxLength) {
+                isValid = false;
+                errorMessage = `Le nom ne peut pas dépasser ${maxLength} caractères.`;
+            } else if (!regex.test(value)) {
+                isValid = false;
+                errorMessage = input.dataset.regexMessage || 'Format de nom invalide.';
+            }
+
+            updateValidationState(input, isValid, errorMessage, errorElement);
+            return isValid;
+        }
+
+        function validateEcoTechnique(input) {
+            const value = input.value.trim();
+            const minLength = parseInt(input.dataset.minLength) || 3;
+            const maxLength = parseInt(input.dataset.maxLength) || 255;
+            const errorElement = document.getElementById('ecoTechnique-error');
+
+            let isValid = true;
+            let errorMessage = '';
+
+            if (value.length === 0) {
+                isValid = false;
+                errorMessage = 'La technique écologique est obligatoire.';
+            } else if (value.length < minLength) {
+                isValid = false;
+                errorMessage = `La technique doit contenir au moins ${minLength} caractères.`;
+            } else if (value.length > maxLength) {
+                isValid = false;
+                errorMessage = `La technique ne peut pas dépasser ${maxLength} caractères.`;
+            }
+
+            updateValidationState(input, isValid, errorMessage, errorElement);
+            return isValid;
+        }
+
+        function validateBio(input) {
+            const value = input.value.trim();
+            const minLength = parseInt(input.dataset.minLength) || 50;
+            const maxLength = parseInt(input.dataset.maxLength) || 2000;
+            const errorElement = document.getElementById('bio-error');
+
+            let isValid = true;
+            let errorMessage = '';
+
+            if (value.length === 0) {
+                isValid = false;
+                errorMessage = 'La biographie est obligatoire.';
+            } else if (value.length < minLength) {
+                isValid = false;
+                errorMessage = `La biographie doit contenir au moins ${minLength} caractères (actuellement : ${value.length}).`;
+            } else if (value.length > maxLength) {
+                isValid = false;
+                errorMessage = `La biographie ne peut pas dépasser ${maxLength} caractères (actuellement : ${value.length}).`;
+            }
+
+            updateValidationState(input, isValid, errorMessage, errorElement);
+            return isValid;
+        }
+
+        function validateProfilePicture(input) {
+            const value = input.value.trim();
+            const maxLength = parseInt(input.dataset.maxLength) || 255;
+            const errorElement = document.getElementById('profilePicture-error');
+
+            let isValid = true;
+            let errorMessage = '';
+
+            // Si le champ est vide, c'est valide (optionnel)
+            if (value.length === 0) {
+                updateValidationState(input, true, '', errorElement);
+                return true;
+            }
+
+            // Validation de l'URL
+            try {
+                new URL(value);
+            } catch (e) {
+                isValid = false;
+                errorMessage = 'L\'URL n\'est pas valide.';
+            }
+
+            // Validation de la longueur
+            if (value.length > maxLength) {
+                isValid = false;
+                errorMessage = `L\'URL ne peut pas dépasser ${maxLength} caractères.`;
+            }
+
+            // Validation de l'extension d'image
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+            const hasValidExtension = imageExtensions.some(ext =>
+                value.toLowerCase().endsWith(ext)
+            );
+
+            if (!hasValidExtension) {
+                // Avertissement mais pas d'erreur (certaines URLs peuvent ne pas avoir d'extension)
+                console.warn('L\'URL ne se termine pas par une extension d\'image connue.');
+            }
+
+            updateValidationState(input, isValid, errorMessage, errorElement);
+            return isValid;
+        }
+
+        function validateUser(input) {
+            const value = input.value;
+            const errorElement = document.getElementById('user-error');
+
+            let isValid = true;
+            let errorMessage = '';
+
+            if (!value) {
+                isValid = false;
+                errorMessage = 'Vous devez sélectionner un utilisateur.';
+            }
+
+            updateValidationState(input, isValid, errorMessage, errorElement);
+            return isValid;
+        }
+
+        function toggleCertification(input) {
+            const label = input.nextElementSibling;
+            if (input.checked) {
+                label.innerHTML = '<strong>✓ Artiste certifié</strong>';
+                label.classList.add('text-success');
+            } else {
+                label.innerHTML = '<strong>Certifier cet artiste</strong>';
+                label.classList.remove('text-success');
+            }
+        }
+
+        // Fonctions utilitaires
+
+        function updateValidationState(input, isValid, errorMessage, errorElement) {
+            if (isValid) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                if (errorElement) {
+                    errorElement.textContent = '';
+                    errorElement.style.display = 'none';
+                }
+            } else {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                if (errorElement) {
+                    errorElement.textContent = errorMessage;
+                    errorElement.style.display = 'block';
                 }
             }
 
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    if (alert.classList.contains('show')) {
-                        const bsAlert = new bootstrap.Alert(alert);
-                        bsAlert.close();
-                    }
+            // Mettre à jour le compteur de caractères
+            updateCharacterCounter(input);
+        }
+
+        function initCharacterCounters() {
+            const inputs = [
+                { id: '{{ form.name.vars.id }}', counterId: 'name-counter', max: 255 },
+                { id: '{{ form.ecoTechnique.vars.id }}', counterId: 'ecoTechnique-counter', max: 255 },
+                { id: '{{ form.bio.vars.id }}', counterId: 'bio-counter', max: 2000 },
+                { id: '{{ form.profilePicture.vars.id }}', counterId: 'profilePicture-counter', max: 255 }
+            ];
+
+            inputs.forEach(item => {
+                const input = document.getElementById(item.id);
+                const counter = document.getElementById(item.counterId);
+
+                if (input && counter) {
+                    updateCharacterCounter(input);
+
+                    input.addEventListener('input', function() {
+                        updateCharacterCounter(this);
+                    });
+                }
+            });
+        }
+
+        function updateCharacterCounter(input) {
+            const counterId = input.id + '-counter';
+            const counter = document.getElementById(counterId.replace(/[\[\]]/g, '\\$&'));
+
+            if (!counter) return;
+
+            const value = input.value;
+            const maxLength = parseInt(input.dataset.maxLength) || 255;
+            const currentLength = value.length;
+
+            counter.textContent = `${currentLength} / ${maxLength}`;
+
+            // Changer la couleur en fonction du nombre de caractères
+            counter.className = 'character-counter';
+
+            if (currentLength > maxLength) {
+                counter.classList.add('over-limit');
+            } else if (currentLength > maxLength * 0.9) {
+                counter.classList.add('near-limit');
+            }
+        }
+
+        function validateAllFields() {
+            const nameInput = document.querySelector('#{{ form.name.vars.id }}');
+            const ecoTechniqueInput = document.querySelector('#{{ form.ecoTechnique.vars.id }}');
+            const bioInput = document.querySelector('#{{ form.bio.vars.id }}');
+            const userInput = document.querySelector('#{{ form.user.vars.id }}');
+            const profilePictureInput = document.querySelector('#{{ form.profilePicture.vars.id }}');
+
+            const validations = [
+                validateName(nameInput),
+                validateEcoTechnique(ecoTechniqueInput),
+                validateBio(bioInput),
+                validateUser(userInput)
+            ];
+
+            // La photo de profil est optionnelle, on valide seulement si remplie
+            if (profilePictureInput && profilePictureInput.value.trim().length > 0) {
+                validations.push(validateProfilePicture(profilePictureInput));
+            }
+
+            return validations.every(v => v === true);
+        }
+
+        function showValidationErrors() {
+            // Faire défiler jusqu'au premier champ invalide
+            const firstInvalidInput = document.querySelector('.is-invalid');
+            if (firstInvalidInput) {
+                firstInvalidInput.focus();
+                firstInvalidInput.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
                 });
-            }, 5000);
+
+                // Afficher une alerte
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Erreurs de validation</strong> : Veuillez corriger les champs en rouge avant de soumettre le formulaire.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+
+                const container = document.querySelector('.container-fluid.py-4');
+                if (container) {
+                    const firstChild = container.firstChild;
+                    container.insertBefore(alertDiv, firstChild);
+
+                    // Supprimer l'alerte après 5 secondes
+                    setTimeout(() => {
+                        if (alertDiv.parentNode) {
+                            alertDiv.remove();
+                        }
+                    }, 5000);
+                }
+            }
+        }
+
+        // Validation en temps réel pour les champs obligatoires
+        document.querySelectorAll('[required]').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                }
+            });
         });
     </script>
 {% endblock %}

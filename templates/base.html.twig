@@ -97,9 +97,7 @@
                             <a href="{{ path('app_admin_artist_index') }}" class="text-white me-3">
                                 <i class="fas fa-palette me-1"></i>Artistes
                             </a>
-                            <a href="{{ path('app_logout') }}" class="text-danger">
-                                <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
-                            </a>
+
                         </div>
                     </div>
                 </div>
@@ -135,9 +133,10 @@
                                     <i class="fas fa-user-circle me-1"></i>Mon compte
                                 </a>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item" href="{{ path('user_profile') }}">
                                         <i class="fas fa-user me-2"></i>Mon profil
                                     </a>
+
                                     <a class="dropdown-item" href="#">
                                         <i class="fas fa-shopping-cart me-2"></i>Mes commandes
                                     </a>

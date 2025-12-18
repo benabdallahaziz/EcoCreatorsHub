@@ -1,0 +1,1026 @@
+{# templates/user/profile_edit.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil - {{ app.user.username }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Vos styles CSS existants */
+        .profile-edit-container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+        .form-section { background: white; border-radius: 10px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #eaeaea; }
+        .section-header { display: flex; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f0f0f0; }
+        .section-header i { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: #333; margin: 0; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-control { border-radius: 8px; border: 1px solid #ddd; padding: 0.75rem 1rem; transition: all 0.3s; }
+        .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25); }
+        .form-control:disabled { background-color: #f8f9fa; cursor: not-allowed; opacity: 0.7; }
+        .form-label { font-weight: 500; color: #555; margin-bottom: 0.5rem; }
+        .btn-submit { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+        .btn-cancel { background: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600; }
+        .btn-cancel:hover { background: #e9ecef; }
+        .form-help { font-size: 0.875rem; color: #6c757d; margin-top: 0.25rem; }
+        .avatar-preview { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold; margin: 0 auto 1rem; border: 4px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .avatar-container { text-align: center; margin-bottom: 2rem; }
+        .form-errors { background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #721c24; }
+        .form-errors ul { margin-bottom: 0; padding-left: 1rem; }
+        .tab-content { background: white; border-radius: 0 0 10px 10px; padding: 2rem; border: 1px solid #dee2e6; border-top: none; }
+        .nav-tabs { border-bottom: 1px solid #dee2e6; }
+        .nav-tabs .nav-link { border: 1px solid transparent; border-top-left-radius: 10px; border-top-right-radius: 10px; padding: 0.75rem 1.5rem; color: #6c757d; font-weight: 500; }
+        .nav-tabs .nav-link:hover { border-color: #e9ecef #e9ecef #dee2e6; }
+        .nav-tabs .nav-link.active { color: #667eea; background-color: white; border-color: #dee2e6 #dee2e6 #fff; }
+
+        /* Nouveau style pour les erreurs de champ */
+        .is-invalid { border-color: #dc3545 !important; }
+        .is-valid { border-color: #198754 !important; }
+        .invalid-feedback { display: block; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem; }
+
+        /* Style pour les champs de mot de passe */
+        .password-field-group { position: relative; }
+        .password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6c757d; cursor: pointer; }
+        .password-toggle:hover { color: #495057; }
+        .password-strength { height: 4px; border-radius: 2px; margin-top: 5px; background-color: #e9ecef; overflow: hidden; }
+        .password-strength-bar { height: 100%; transition: width 0.3s ease, background-color 0.3s ease; }
+        .password-requirements { font-size: 0.8rem; color: #6c757d; margin-top: 0.5rem; }
+        .requirement { display: flex; align-items: center; margin-bottom: 0.25rem; }
+        .requirement i { margin-right: 0.5rem; font-size: 0.7rem; }
+        .requirement.met { color: #28a745; }
+        .requirement.not-met { color: #dc3545; }
+
+        /* STYLES AJOUTÉS POUR LES CHAMPS ARTISTE */
+
+        /* Style pour le champ "Nom de l'artiste" */
+        .artist-name-container {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #667eea;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .artist-name-container::before {
+            content: "👨‍🎨";
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2.5rem;
+            opacity: 0.2;
+        }
+
+        .artist-name-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .artist-name-label .form-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0;
+        }
+
+        .artist-name-label i {
+            color: #667eea;
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .artist-name-input {
+            background-color: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2d3748;
+            transition: all 0.3s ease;
+        }
+
+        .artist-name-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background-color: #f8f9fa;
+        }
+
+        .artist-name-input::placeholder {
+            color: #a0aec0;
+            font-weight: 400;
+        }
+
+        .artist-name-help {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .artist-name-help i {
+            margin-right: 0.5rem;
+            color: #48bb78;
+        }
+
+        /* Style pour le champ "Technique écologique" */
+        .eco-technique-container {
+            background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 178, 172, 0.1) 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #48bb78;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .eco-technique-container::before {
+            content: "🌿";
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2.5rem;
+            opacity: 0.2;
+        }
+
+        .eco-technique-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .eco-technique-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0;
+        }
+
+        .eco-badge {
+            background-color: #c6f6d5;
+            color: #22543d;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .eco-badge i {
+            margin-right: 0.25rem;
+            font-size: 0.7rem;
+        }
+
+        .eco-technique-textarea {
+            background-color: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.95rem;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .eco-technique-textarea:focus {
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.2);
+            background-color: #f8f9fa;
+        }
+
+        .eco-technique-textarea::placeholder {
+            color: #a0aec0;
+        }
+
+        .eco-technique-help {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .eco-technique-help i {
+            margin-right: 0.5rem;
+            color: #48bb78;
+        }
+
+        /* Conteneur pour les deux champs côte à côte */
+        .artist-fields-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .artist-fields-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .artist-name-container::before,
+            .eco-technique-container::before {
+                display: none;
+            }
+        }
+
+        /* Style pour les tags/chips dans la technique écologique */
+        .technique-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .technique-tag {
+            background-color: #e6fffa;
+            color: #234e52;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #81e6d9;
+        }
+
+        .technique-tag i {
+            margin-right: 0.25rem;
+            font-size: 0.7rem;
+        }
+
+        /* Animation pour les champs */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+
+        .highlight-field {
+            animation: pulse-glow 1.5s ease-in-out;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('user_profile') }}">
+                                <i class="fas fa-home me-1"></i>Tableau de bord
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active">Modifier mon profil</li>
+                    </ol>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-0">
+                            <i class="fas fa-user-edit me-2 text-primary"></i>Modifier mon profil
+                        </h1>
+                        <p class="text-muted mb-0">Mettez à jour vos informations personnelles</p>
+                    </div>
+                    <a href="{{ path('user_profile') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour
+                    </a>
+                </div>
+
+                <!-- Flash Messages -->
+                {% for type in ['success', 'error', 'warning', 'info'] %}
+                    {% for message in app.flashes(type) %}
+                        <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show mb-4" role="alert">
+                            {% if type == 'success' %}
+                                <i class="fas fa-check-circle me-2"></i>
+                            {% elseif type == 'error' %}
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                            {% elseif type == 'warning' %}
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle me-2"></i>
+                            {% endif %}
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <!-- Tabs Navigation -->
+                <ul class="nav nav-tabs mb-0" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="user-tab" data-bs-toggle="tab" data-bs-target="#user" type="button" role="tab">
+                            <i class="fas fa-user me-1"></i>Compte
+                        </button>
+                    </li>
+                    {% if artistForm is defined and artistForm %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="artist-tab" data-bs-toggle="tab" data-bs-target="#artist" type="button" role="tab">
+                                <i class="fas fa-paint-brush me-1"></i>Profil artiste
+                            </button>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="profileTabsContent">
+                    <!-- User Profile Tab -->
+                    <div class="tab-pane fade show active" id="user" role="tabpanel">
+                        <!-- Avatar Preview -->
+                        <div class="avatar-container">
+                            <div class="avatar-preview" id="avatarPreview">
+                                {{ app.user.initials }}
+                            </div>
+                            <div class="text-muted small">
+                                Avatar généré à partir de vos initiales
+                            </div>
+                        </div>
+
+                        <!-- User Form -->
+                        {{ form_start(userForm, {
+                            'attr': {
+                                'id': 'user-form',
+                                'class': 'needs-validation',
+                                'novalidate': 'novalidate',
+                                'data-form-type': 'user'
+                            }
+                        }) }}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(userForm.username, 'Nom d\'utilisateur', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(userForm.username, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'disabled': true,
+                                        'readonly': true
+                                    }
+                                }) }}
+                                <div class="form-help">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Le nom d'utilisateur ne peut pas être modifié
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(userForm.email, 'Adresse email', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(userForm.email, {
+                                    'attr': {
+                                        'class': 'form-control ' ~ (userForm.email.vars.valid ? 'is-valid' : ''),
+                                        'placeholder': 'votre@email.com'
+                                    }
+                                }) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(userForm.email) }}
+                                </div>
+                                {{ form_help(userForm.email) }}
+                            </div>
+                        </div>
+
+                        <!-- Champ pour le nouveau mot de passe -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5 class="mb-3 border-bottom pb-2">
+                                    <i class="fas fa-key me-2"></i>Changer le mot de passe
+                                    <small class="text-muted fw-normal">(Optionnel)</small>
+                                </h5>
+                                <p class="text-muted mb-4">
+                                    Laissez ces champs vides si vous ne souhaitez pas changer votre mot de passe.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="password-field-group">
+                                    {{ form_label(userForm.plainPassword.first, 'Nouveau mot de passe', {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(userForm.plainPassword.first, {
+                                        'attr': {
+                                            'class': 'form-control password-input',
+                                            'placeholder': 'Entrez le nouveau mot de passe',
+                                            'autocomplete': 'new-password',
+                                            'data-strength-meter': 'true'
+                                        }
+                                    }) }}
+                                    <button type="button" class="password-toggle" data-target="{{ userForm.plainPassword.first.vars.id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(userForm.plainPassword.first) }}
+                                    </div>
+
+                                    <!-- Indicateur de force du mot de passe -->
+                                    <div class="password-strength">
+                                        <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                                    </div>
+
+                                    <!-- Exigences du mot de passe -->
+                                    <div class="password-requirements">
+                                        <div class="requirement not-met" id="req-length">
+                                            <i class="fas fa-circle"></i>
+                                            Au moins 12 caractères
+                                        </div>
+                                        <div class="requirement not-met" id="req-uppercase">
+                                            <i class="fas fa-circle"></i>
+                                            Au moins une majuscule
+                                        </div>
+                                        <div class="requirement not-met" id="req-lowercase">
+                                            <i class="fas fa-circle"></i>
+                                            Au moins une minuscule
+                                        </div>
+                                        <div class="requirement not-met" id="req-number">
+                                            <i class="fas fa-circle"></i>
+                                            Au moins un chiffre
+                                        </div>
+                                        <div class="requirement not-met" id="req-special">
+                                            <i class="fas fa-circle"></i>
+                                            Au moins un caractère spécial (@$!%*?&)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="password-field-group">
+                                    {{ form_label(userForm.plainPassword.second, 'Confirmer le mot de passe', {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(userForm.plainPassword.second, {
+                                        'attr': {
+                                            'class': 'form-control password-input',
+                                            'placeholder': 'Confirmez le nouveau mot de passe',
+                                            'autocomplete': 'new-password'
+                                        }
+                                    }) }}
+                                    <button type="button" class="password-toggle" data-target="{{ userForm.plainPassword.second.vars.id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(userForm.plainPassword.second) }}
+                                    </div>
+                                    <div class="form-help">
+                                        Doit être identique au mot de passe ci-dessus
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between pt-4 mt-4 border-top">
+                            <a href="{{ path('user_profile') }}" class="btn btn-cancel">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+
+                            <!-- BOUTON DE SOUMISSION PRINCIPAL -->
+                            <button type="submit" id="submit-user-form" class="btn btn-submit">
+                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                            </button>
+                        </div>
+
+                        {{ form_end(userForm) }}
+                    </div>
+
+                    <!-- Artist Profile Tab (si disponible) -->
+                    {% if artistForm is defined and artistForm %}
+                        <div class="tab-pane fade" id="artist" role="tabpanel">
+                            <!-- Artist Form -->
+                            {{ form_start(artistForm, {
+                                'attr': {
+                                    'id': 'artist-form',
+                                    'class': 'needs-validation',
+                                    'novalidate': 'novalidate',
+                                    'data-form-type': 'artist'
+                                }
+                            }) }}
+
+                            <!-- SECTION AJOUTÉE : Nom de l'artiste et Technique écologique -->
+                            <!-- Nom de l'artiste -->
+                            <div class="artist-name-container">
+                                <div class="artist-name-label">
+                                    <i class="fas fa-palette"></i>
+                                    {{ form_label(artistForm.name, 'Nom de l\'artiste', {'label_attr': {'class': 'form-label'}}) }}
+                                </div>
+                                {{ form_widget(artistForm.name, {
+                                'attr': {
+                                'class': 'form-control artist-name-input ' ~ (artistForm.name.vars.valid ? 'is-valid' : ''),
+                                'placeholder': 'Votre nom d\'artiste professionnel',
+                                'id': 'artist-name-field',
+                                'readonly': 'readonly'   # <-- Champ verrouillé
+                                }
+                                }) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(artistForm.name) }}
+                                    </div>
+                                    <div class="artist-name-help">
+                                    <i class="fas fa-lightbulb"></i>
+                                    Le nom sous lequel vous exposerez vos œuvres
+                                </div>
+                            </div>
+
+                            <!-- Technique écologique -->
+                                <div class="eco-technique-container">
+                                    <div class="eco-technique-header">
+                                        <div class="eco-technique-title">
+                                            <i class="fas fa-leaf me-1"></i>
+                                            {{ form_label(artistForm.ecoTechnique, 'Technique écologique', {'label_attr': {'class': 'form-label'}}) }}
+                                        </div>
+                                        <span class="eco-badge">
+                                            <i class="fas fa-seedling"></i>ÉCOLO
+                                        </span>
+                                    </div>
+                                    {{ form_widget(artistForm.ecoTechnique, {
+                                        'attr': {
+                                            'class': 'form-control eco-technique-textarea ' ~ (artistForm.ecoTechnique.vars.valid ? 'is-valid' : ''),
+                                            'placeholder': 'Décrivez vos techniques respectueuses de l\'environnement...',
+                                            'id': 'eco-technique-field',
+                                            'rows': 4
+                                        }
+                                    }) }}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(artistForm.ecoTechnique) }}
+                                    </div>
+                                    <div class="eco-technique-help">
+                                        <i class="fas fa-info-circle"></i>
+                                        Décrivez vos matériaux recyclés, processus durables, etc.
+                                    </div>
+
+                                    <!-- Exemples de tags (optionnel) -->
+                                    <div class="technique-tags">
+                                        <span class="technique-tag">
+                                            <i class="fas fa-recycle"></i>Matériaux recyclés
+                                        </span>
+                                        <span class="technique-tag">
+                                            <i class="fas fa-sun"></i>Énergie renouvelable
+                                        </span>
+                                        <span class="technique-tag">
+                                            <i class="fas fa-tint"></i>Peintures naturelles
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Biographie existante -->
+                            <div class="mb-3">
+                                {{ form_label(artistForm.bio, 'Biographie', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(artistForm.bio, {
+                                    'attr': {
+                                        'class': 'form-control ' ~ (artistForm.bio.vars.valid ? 'is-valid' : ''),
+                                        'rows': 6,
+                                        'placeholder': 'Décrivez votre parcours artistique, vos techniques, votre approche écologique...'
+                                    }
+                                }) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(artistForm.bio) }}
+                                </div>
+                                {{ form_help(artistForm.bio) }}
+                                <div class="character-counter mt-1 text-end small text-muted" id="bio-counter"></div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-flex justify-content-between pt-4 mt-4 border-top">
+                                <a href="{{ path('user_profile') }}" class="btn btn-cancel">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </a>
+
+                                <!-- BOUTON DE SOUMISSION ARTISTE -->
+                                <button type="submit" id="submit-artist-form" class="btn btn-submit">
+                                    <i class="fas fa-save me-2"></i>Enregistrer le profil artiste
+                                </button>
+                            </div>
+
+                            {{ form_end(artistForm) }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation
+            initAvatarPreview();
+            initBioCounter();
+            initFormValidation();
+            initTabs();
+            initFormModifiedWarning();
+            initPasswordFields();
+            initArtistFields(); // Nouvelle fonction pour les champs artiste
+
+            // 1. Mise à jour de l'avatar en temps réel (basé sur le nom d'utilisateur actuel)
+            function initAvatarPreview() {
+                const username = "{{ app.user.username }}";
+                const preview = document.getElementById('avatarPreview');
+                if (preview && username.length >= 2) {
+                    const initials = username.substring(0, 2).toUpperCase();
+                    preview.textContent = initials;
+                }
+            }
+
+            // 2. Compteur de caractères pour la biographie
+            function initBioCounter() {
+                const bioTextarea = document.querySelector('#{{ artistForm is defined and artistForm ? artistForm.bio.vars.id : '' }}');
+
+                if (bioTextarea) {
+                    const counter = document.getElementById('bio-counter');
+
+                    function updateBioCounter() {
+                        const length = bioTextarea.value.length;
+                        const minLength = 50;
+                        const maxLength = 2000;
+
+                        counter.textContent = `${length} / ${maxLength} caractères`;
+
+                        if (length < minLength) {
+                            counter.style.color = '#dc3545';
+                            counter.innerHTML += ` (minimum ${minLength})`;
+                        } else if (length > maxLength * 0.9) {
+                            counter.style.color = '#ffc107';
+                        } else {
+                            counter.style.color = '#6c757d';
+                        }
+                    }
+
+                    // Initialiser et mettre à jour
+                    updateBioCounter();
+                    bioTextarea.addEventListener('input', updateBioCounter);
+                }
+            }
+
+            // 3. Gestion des champs de mot de passe
+            function initPasswordFields() {
+                // Basculer la visibilité du mot de passe
+                document.querySelectorAll('.password-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', function() {
+                        const targetId = this.getAttribute('data-target');
+                        const input = document.getElementById(targetId);
+                        const icon = this.querySelector('i');
+
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            icon.classList.remove('fa-eye');
+                            icon.classList.add('fa-eye-slash');
+                        } else {
+                            input.type = 'password';
+                            icon.classList.remove('fa-eye-slash');
+                            icon.classList.add('fa-eye');
+                        }
+                    });
+                });
+
+                // Vérificateur de force du mot de passe
+                const passwordInput = document.querySelector('#{{ userForm.plainPassword.first.vars.id }}');
+                const strengthBar = document.getElementById('passwordStrengthBar');
+                const requirements = {
+                    length: document.getElementById('req-length'),
+                    uppercase: document.getElementById('req-uppercase'),
+                    lowercase: document.getElementById('req-lowercase'),
+                    number: document.getElementById('req-number'),
+                    special: document.getElementById('req-special')
+                };
+
+                if (passwordInput && strengthBar) {
+                    passwordInput.addEventListener('input', function() {
+                        const password = this.value;
+                        let strength = 0;
+
+                        // Vérifier chaque exigence
+                        const hasLength = password.length >= 12;
+                        const hasUppercase = /[A-Z]/.test(password);
+                        const hasLowercase = /[a-z]/.test(password);
+                        const hasNumber = /\d/.test(password);
+                        const hasSpecial = /[@$!%*?&]/.test(password);
+
+                        // Mettre à jour les indicateurs visuels
+                        updateRequirement(requirements.length, hasLength);
+                        updateRequirement(requirements.uppercase, hasUppercase);
+                        updateRequirement(requirements.lowercase, hasLowercase);
+                        updateRequirement(requirements.number, hasNumber);
+                        updateRequirement(requirements.special, hasSpecial);
+
+                        // Calculer la force
+                        if (hasLength) strength += 20;
+                        if (hasUppercase) strength += 20;
+                        if (hasLowercase) strength += 20;
+                        if (hasNumber) strength += 20;
+                        if (hasSpecial) strength += 20;
+
+                        // Mettre à jour la barre de progression
+                        strengthBar.style.width = strength + '%';
+
+                        // Changer la couleur en fonction de la force
+                        if (strength < 40) {
+                            strengthBar.style.backgroundColor = '#dc3545'; // Rouge
+                        } else if (strength < 80) {
+                            strengthBar.style.backgroundColor = '#ffc107'; // Orange
+                        } else {
+                            strengthBar.style.backgroundColor = '#28a745'; // Vert
+                        }
+                    });
+
+                    function updateRequirement(element, isMet) {
+                        if (isMet) {
+                            element.classList.remove('not-met');
+                            element.classList.add('met');
+                            element.querySelector('i').className = 'fas fa-check-circle';
+                        } else {
+                            element.classList.remove('met');
+                            element.classList.add('not-met');
+                            element.querySelector('i').className = 'fas fa-circle';
+                        }
+                    }
+                }
+
+                // Vérification de correspondance des mots de passe
+                const confirmPasswordInput = document.querySelector('#{{ userForm.plainPassword.second.vars.id }}');
+                if (passwordInput && confirmPasswordInput) {
+                    function checkPasswordMatch() {
+                        const password = passwordInput.value;
+                        const confirmPassword = confirmPasswordInput.value;
+
+                        if (confirmPassword === '') return;
+
+                        if (password !== confirmPassword) {
+                            confirmPasswordInput.classList.add('is-invalid');
+                            confirmPasswordInput.classList.remove('is-valid');
+                        } else {
+                            confirmPasswordInput.classList.remove('is-invalid');
+                            confirmPasswordInput.classList.add('is-valid');
+                        }
+                    }
+
+                    confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+                    passwordInput.addEventListener('input', checkPasswordMatch);
+                }
+            }
+
+            // 4. Validation des formulaires
+            function initFormValidation() {
+                const forms = document.querySelectorAll('.needs-validation');
+
+                forms.forEach(form => {
+                    form.addEventListener('submit', function(event) {
+                        // Réinitialiser les états de validation
+                        form.classList.remove('was-validated');
+
+                        // Valider le formulaire
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            // Afficher les erreurs
+                            form.classList.add('was-validated');
+
+                            // Basculer vers l'onglet du formulaire en erreur
+                            const formType = form.dataset.formType;
+                            if (formType === 'artist') {
+                                const artistTab = document.querySelector('#artist-tab');
+                                if (artistTab) {
+                                    new bootstrap.Tab(artistTab).show();
+                                }
+                            }
+                        } else {
+                            // Vérifier la correspondance des mots de passe
+                            const password = document.querySelector('#{{ userForm.plainPassword.first.vars.id }}');
+                            const confirmPassword = document.querySelector('#{{ userForm.plainPassword.second.vars.id }}');
+
+                            if (password && confirmPassword && password.value !== '' && confirmPassword.value !== '') {
+                                if (password.value !== confirmPassword.value) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    confirmPassword.classList.add('is-invalid');
+                                    alert('Les mots de passe ne correspondent pas.');
+                                    return;
+                                }
+                            }
+
+                            // Désactiver le bouton de soumission pendant l'envoi
+                            const submitBtn = form.querySelector('button[type="submit"]');
+                            if (submitBtn) {
+                                submitBtn.disabled = true;
+                                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement...';
+                            }
+                        }
+                    }, false);
+
+                    // Validation en temps réel
+                    form.querySelectorAll('input:not([disabled]), textarea, select').forEach(input => {
+                        input.addEventListener('blur', function() {
+                            if (this.checkValidity()) {
+                                this.classList.remove('is-invalid');
+                                this.classList.add('is-valid');
+                            } else {
+                                this.classList.remove('is-valid');
+                                this.classList.add('is-invalid');
+                            }
+                        });
+                    });
+                });
+            }
+
+            // 5. Gestion des onglets
+            function initTabs() {
+                const triggerTabList = [].slice.call(document.querySelectorAll('#profileTabs button'));
+                triggerTabList.forEach(function (triggerEl) {
+                    const tabTrigger = new bootstrap.Tab(triggerEl);
+                    triggerEl.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        tabTrigger.show();
+                    });
+                });
+
+                // Sauvegarder l'onglet actif dans localStorage
+                const activeTab = localStorage.getItem('activeProfileTab');
+                if (activeTab) {
+                    const tab = document.querySelector(activeTab);
+                    if (tab) {
+                        new bootstrap.Tab(tab).show();
+                    }
+                }
+
+                const tabEls = document.querySelectorAll('#profileTabs button[data-bs-toggle="tab"]');
+                tabEls.forEach(tab => {
+                    tab.addEventListener('shown.bs.tab', function (event) {
+                        localStorage.setItem('activeProfileTab', event.target.getAttribute('data-bs-target'));
+                    });
+                });
+            }
+
+            // 6. Avertissement avant de quitter sans sauvegarder
+            function initFormModifiedWarning() {
+                let formModified = false;
+
+                document.querySelectorAll('input:not([disabled]), textarea, select').forEach(input => {
+                    const initialValue = input.value;
+
+                    input.addEventListener('input', () => {
+                        if (input.value !== initialValue) {
+                            formModified = true;
+                        }
+                    });
+
+                    input.addEventListener('change', () => {
+                        formModified = true;
+                    });
+                });
+
+                window.addEventListener('beforeunload', (e) => {
+                    if (formModified) {
+                        e.preventDefault();
+                        e.returnValue = 'Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?';
+                    }
+                });
+
+                // Réinitialiser le flag si le formulaire est soumis
+                document.querySelectorAll('form').forEach(form => {
+                    form.addEventListener('submit', () => {
+                        formModified = false;
+                    });
+                });
+            }
+
+            // 7. NOUVELLE FONCTION : Gestion des champs artiste
+            function initArtistFields() {
+                // Animation d'entrée pour les champs artiste
+                const artistNameField = document.getElementById('artist-name-field');
+                const ecoTechniqueField = document.getElementById('eco-technique-field');
+
+                if (artistNameField) {
+                    // Ajouter une animation au focus
+                    artistNameField.addEventListener('focus', function() {
+                        this.parentElement.classList.add('highlight-field');
+                        setTimeout(() => {
+                            this.parentElement.classList.remove('highlight-field');
+                        }, 1500);
+                    });
+
+                    // Générer un nom d'artiste suggéré si vide
+                    artistNameField.addEventListener('blur', function() {
+                        if (!this.value.trim()) {
+                            const username = "{{ app.user.username }}";
+                            const suggestedName = username.charAt(0).toUpperCase() + username.slice(1);
+                            this.setAttribute('placeholder', `Ex: ${suggestedName}`);
+                        }
+                    });
+                }
+
+                if (ecoTechniqueField) {
+                    // Ajouter une animation au focus
+                    ecoTechniqueField.addEventListener('focus', function() {
+                        this.parentElement.classList.add('highlight-field');
+                        setTimeout(() => {
+                            this.parentElement.classList.remove('highlight-field');
+                        }, 1500);
+                    });
+
+                    // Compteur de caractères pour la technique écologique
+                    ecoTechniqueField.addEventListener('input', function() {
+                        const length = this.value.length;
+                        const maxLength = 500;
+
+                        // Créer ou mettre à jour le compteur
+                        let counter = this.parentElement.querySelector('.eco-counter');
+                        if (!counter) {
+                            counter = document.createElement('div');
+                            counter.className = 'eco-counter text-end small mt-1';
+                            this.parentElement.appendChild(counter);
+                        }
+
+                        counter.textContent = `${length} / ${maxLength} caractères`;
+                        counter.style.color = length > maxLength * 0.9 ? '#ffc107' : '#6c757d';
+
+                        if (length > maxLength) {
+                            counter.style.color = '#dc3545';
+                        }
+                    });
+                }
+
+                // Exemples interactifs pour la technique écologique
+                const techniqueTags = document.querySelectorAll('.technique-tag');
+                techniqueTags.forEach(tag => {
+                    tag.addEventListener('click', function() {
+                        const text = this.textContent.trim();
+                        const iconText = this.querySelector('i')?.textContent || '';
+                        const cleanText = text.replace(iconText, '').trim();
+
+                        if (ecoTechniqueField) {
+                            const currentValue = ecoTechniqueField.value.trim();
+                            let newValue = currentValue;
+
+                            if (currentValue) {
+                                if (!currentValue.includes(cleanText)) {
+                                    newValue = currentValue + ', ' + cleanText;
+                                }
+                            } else {
+                                newValue = cleanText;
+                            }
+
+                            ecoTechniqueField.value = newValue;
+                            ecoTechniqueField.dispatchEvent(new Event('input'));
+
+                            // Feedback visuel
+                            this.style.transform = 'scale(0.95)';
+                            setTimeout(() => {
+                                this.style.transform = '';
+                            }, 200);
+                        }
+                    });
+
+                    // Effet hover
+                    tag.addEventListener('mouseenter', function() {
+                        this.style.cursor = 'pointer';
+                        this.style.transform = 'translateY(-2px)';
+                    });
+
+                    tag.addEventListener('mouseleave', function() {
+                        this.style.transform = '';
+                    });
+                });
+            }
+
+            // 8. Gestion automatique des onglets en cas d'erreur
+            function showRelevantTab() {
+                // Si le formulaire artiste a des erreurs, basculer vers cet onglet
+                {% if artistForm and artistForm.vars.errors|length > 0 %}
+                const artistTab = document.querySelector('#artist-tab');
+                if (artistTab) {
+                    new bootstrap.Tab(artistTab).show();
+
+                    // Mettre en évidence les champs avec erreur
+                    setTimeout(() => {
+                        const errorFields = document.querySelectorAll('.is-invalid');
+                        errorFields.forEach(field => {
+                            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            field.classList.add('highlight-field');
+                        });
+                    }, 300);
+                }
+                {% endif %}
+
+                // Si le formulaire utilisateur a des erreurs, basculer vers cet onglet
+                {% if userForm.vars.errors|length > 0 %}
+                const userTab = document.querySelector('#user-tab');
+                if (userTab) {
+                    new bootstrap.Tab(userTab).show();
+                }
+                {% endif %}
+            }
+
+            // Appeler la fonction après le chargement
+            setTimeout(showRelevantTab, 100);
+        });
+    </script>
+{% endblock %}

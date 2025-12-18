@@ -33,10 +33,10 @@ class Artist
     )]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'text')]
-    #[Assert\NotBlank(message: 'La biographie est obligatoire.')]
+    #[ORM\Column(type: 'text',nullable: true)]
+
     #[Assert\Length(
-        min: 50,
+        min: 1,
         max: 2000,
         minMessage: 'La biographie doit faire au moins {{ limit }} caractères.',
         maxMessage: 'La biographie ne peut pas dépasser {{ limit }} caractères.'

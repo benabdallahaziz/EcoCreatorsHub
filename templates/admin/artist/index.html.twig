@@ -19,6 +19,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="card-body">
                         <!-- Barre de recherche et filtres -->
                         <form method="get" class="row mb-4 g-3">
@@ -40,9 +41,9 @@
                                 </select>
                             </div>
                             <div class="col-md-4 text-end">
-                                <a href="{{ path('app_admin_artist_stats') }}" class="btn btn-info">
-                                    <i class="fas fa-chart-bar me-1"></i>Statistiques
-                                </a>
+                                {# <a href="{{ path('app_admin_artist_stats') }}" class="btn btn-info">
+                                <i class="fas fa-chart-bar me-1"></i>Statistiques
+                            </a> #}
                                 <a href="{{ path('app_admin_artist_index') }}" class="btn btn-secondary">
                                     <i class="fas fa-redo me-1"></i>Réinitialiser
                                 </a>
@@ -179,7 +180,7 @@
                                                 {% endif %}
                                             </td>
                                             <td class="text-center">
-                                                {% if artist.isCertified  %}
+                                                {% if artist.isCertified %}
                                                     <span class="badge bg-success">Actif</span>
                                                 {% else %}
                                                     <span class="badge bg-danger">Inactif</span>
@@ -204,18 +205,8 @@
                                             </td>
                                             <td>
                                                 <div class="btn-group btn-group-sm w-100">
-                                                    <a href="{{ path('app_admin_artist_show', {'id': artist.id}) }}"
-                                                       class="btn btn-info"
-                                                       title="Voir les détails"
-                                                       data-bs-toggle="tooltip">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="{{ path('app_admin_artist_edit', {'id': artist.id}) }}"
-                                                       class="btn btn-warning"
-                                                       title="Modifier"
-                                                       data-bs-toggle="tooltip">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
+
+
 
                                                     <!-- Bouton toggle certification -->
                                                     <form method="post"
@@ -230,6 +221,12 @@
                                                             <i class="fas {{ artist.isCertified ? 'fa-times' : 'fa-certificate' }}"></i>
                                                         </button>
                                                     </form>
+                                                    <a href="{{ path('app_admin_artist_edit', {'id': artist.id}) }}"
+                                                       class="btn btn-warning"
+                                                       title="Modifier"
+                                                       data-bs-toggle="tooltip">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
 
                                                     <!-- Bouton suppression -->
                                                     <form method="post"
@@ -252,7 +249,7 @@
                                 </table>
                             </div>
 
-                            <!-- Pagination (inchangée) -->
+                            {# Pagination existante inchangée #}
                             {% if total_pages > 1 %}
                                 <nav aria-label="Navigation des pages" class="mt-4">
                                     <ul class="pagination justify-content-center">
@@ -308,6 +305,7 @@
                             {% endif %}
                         {% endif %}
                     </div>
+
                     <div class="card-footer text-muted">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="small">
@@ -318,11 +316,7 @@
                                     Aucun artiste à afficher
                                 {% endif %}
                             </div>
-                            <div>
-                                <a href="{{ path('app_admin_artist_debug') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-bug me-1"></i>Mode Debug
-                                </a>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -331,7 +325,6 @@
     </div>
 
     <style>
-        /* Styles inchangés, inchangés ici pour compacité */
         .avatar-circle-sm { width:32px; height:32px; border-radius:50%; background-color:#6c757d; display:flex; align-items:center; justify-content:center; }
         .avatar-text-sm { color:white; font-size:12px; font-weight:bold; }
         .card { border:none; box-shadow:0 0.15rem 1.75rem 0 rgba(58,59,69,0.15); }

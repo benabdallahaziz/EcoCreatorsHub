@@ -152,87 +152,99 @@ class UserController extends AbstractController
         return $this->render('admin/user/new.html.twig', []);
     }
 
-    #[Route('/{id}/edit', name: 'app_admin_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
-    {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+   #[Route('/{id}/edit', name: 'app_admin_user_edit', methods: ['GET', 'POST'])]
+   public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+   {
+       $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        if ($request->isMethod('POST')) {
-            $token = $request->request->get('_token');
-            if (!$this->isCsrfTokenValid('user_create', $token)) {
-                $this->addFlash('error', 'Token CSRF invalide.');
-                return $this->redirectToRoute('app_admin_user_edit', ['id' => $user->getId()]);
-            }
+       if ($request->isMethod('POST')) {
+           $token = $request->request->get('_token');
+           if (!$this->isCsrfTokenValid('user_create', $token)) {
+               $this->addFlash('error', 'Token CSRF invalide.');
+               return $this->redirectToRoute('app_admin_user_edit', ['id' => $user->getId()]);
+           }
 
-            $data = $request->request->all('user');
-            if (!is_array($data)) {
-                $data = [];
-            }
+           $data = $request->request->all('user');
+           if (!is_array($data)) {
+               $data = [];
+           }
 
-            $username = trim($data['username'] ?? '');
-            $email = strtolower(trim($data['email'] ?? ''));
-            $plainPassword = $data['plainPassword'] ?? '';
-            $confirmPassword = $data['confirmPassword'] ?? '';
-            $roles = $data['roles'] ?? ['ROLE_USER'];
-            $isVerified = isset($data['isVerified']);
-            $isActive = isset($data['isActive']);
+           $username = trim($data['username'] ?? '');
+           $email = strtolower(trim($data['email'] ?? ''));
+           $plainPassword = $data['plainPassword'] ?? '';
+           $confirmPassword = $data['confirmPassword'] ?? '';
+           $roles = $data['roles'] ?? ['ROLE_USER'];
+           $isVerified = isset($data['isVerified']);
+           $isActive = isset($data['isActive']);
 
-            // Validation
-            if ($plainPassword && $plainPassword !== $confirmPassword) {
-                $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
-                return $this->redirectToRoute('app_admin_user_edit', ['id' => $user->getId()]);
-            }
+           // Validation
+           if ($plainPassword && $plainPassword !== $confirmPassword) {
+               $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
+               return $this->redirectToRoute('app_admin_user_edit', ['id' => $user->getId()]);
+           }
 
-            if (strlen($username) < 3 || !preg_match('/^[a-zA-Z0-9_\-]+$/', $username)) {
-                $this->addFlash('error', 'Nom d\'utilisateur invalide.');
-                return $this->redirectToRoute('app_admin_user_edit', ['id' => $user->getId()]);
-            }
+           if (strlen($username) < 3 || !preg_match('/^[a-zA-Z0-9_\-]+$/', $username)) {
+               $this->addFlash('error', 'Nom d\'utilisateur invalide.');
+               return $this->redirectToRoute('app_admin_user_edit', ['id' => $user->getId()]);
+           }
 
-            try {
-                $user->setUsername($username);
-                $user->setEmail($email);
+           try {
+               $user->setUsername($username);
+               $user->setEmail($email);
 
-                if ($plainPassword) {
-                    $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
-                }
+               if ($plainPassword) {
+                   $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+               }
 
-                // Ajouter ROLE_USER si absent
-                if (!in_array('ROLE_USER', $roles)) {
-                    $roles[] = 'ROLE_USER';
-                }
-                $user->setRoles(array_unique($roles));
-                $user->setIsVerified($isVerified);
-                $user->setIsActive($isActive);
+               // Ajouter ROLE_USER si absent
+               if (!in_array('ROLE_USER', $roles)) {
+                   $roles[] = 'ROLE_USER';
+               }
+               $user->setRoles(array_unique($roles));
+               $user->setIsVerified($isVerified);
+               $user->setIsActive($isActive);
 
-                $entityManager->flush();
+               $entityManager->flush();
 
-                // Création du profil artiste si rôle ROLE_ARTIST
-                if ($user->hasRole('ROLE_ARTIST')) {
-                    $artistRepo = $entityManager->getRepository(Artist::class);
-                    $existingArtist = $artistRepo->findOneBy(['user' => $user]);
-                    if (!$existingArtist) {
-                        $artist = new Artist();
-                        $artist->setUser($user)
-                               ->setName($user->getUsername())
-                               ->setBio('')
-                               ->setEcoTechnique('');
-                        $entityManager->persist($artist);
-                        $entityManager->flush();
-                    }
-                }
+               // Gestion du profil artiste
+               $artistRepo = $entityManager->getRepository(Artist::class);
+               $existingArtist = $artistRepo->findOneBy(['user' => $user]);
 
-                $this->addFlash('success', 'L\'utilisateur a été modifié avec succès.');
-                return $this->redirectToRoute('app_admin_user_index');
+               if ($user->hasRole('ROLE_ARTIST')) {
+                   // Créer ou mettre à jour le profil artiste
+                   if (!$existingArtist) {
+                       $artist = new Artist();
+                       $artist->setUser($user)
+                              ->setName($user->getUsername())
+                              ->setBio('')
+                              ->setEcoTechnique('');
+                       $entityManager->persist($artist);
+                       $entityManager->flush();
+                   } else {
+                       // Mettre à jour le nom si username a changé
+                       $existingArtist->setName($user->getUsername());
+                       $entityManager->flush();
+                   }
+               } else {
+                   // Supprimer le profil artiste si le rôle est retiré
+                   if ($existingArtist) {
+                       $entityManager->remove($existingArtist);
+                       $entityManager->flush();
+                   }
+               }
 
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
-            }
-        }
+               $this->addFlash('success', 'L\'utilisateur a été modifié avec succès.');
+               return $this->redirectToRoute('app_admin_user_index');
 
-        return $this->render('admin/user/edit.html.twig', [
-            'user' => $user,
-        ]);
-    }
+           } catch (\Exception $e) {
+               $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
+           }
+       }
+
+       return $this->render('admin/user/edit.html.twig', [
+           'user' => $user,
+       ]);
+   }
 
     #[Route('/{id}/delete', name: 'app_admin_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
@@ -240,29 +252,48 @@ class UserController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $this->checkUserAccess($user);
 
+        // Vérifier si l'admin essaie de supprimer son propre compte
         $currentUser = $this->getUser();
         if ($currentUser && $currentUser->getId() === $user->getId()) {
             $this->addFlash('error', 'Vous ne pouvez pas supprimer votre propre compte.');
             return $this->redirectToRoute('app_admin_user_index');
         }
 
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
-            try {
-                // Supprimer le profil artiste associé
-                $artistRepo = $entityManager->getRepository(Artist::class);
-                $artist = $artistRepo->findOneBy(['user' => $user]);
-                if ($artist) {
-                    $entityManager->remove($artist);
-                }
+        // Vérifier si c'est le dernier admin
+        if ($user->hasRole('ROLE_ADMIN')) {
+            $adminCount = $entityManager->getRepository(User::class)
+                ->createQueryBuilder('u')
+                ->select('COUNT(u.id)')
+                ->where('u.roles LIKE :role')
+                ->setParameter('role', '%ROLE_ADMIN%')
+                ->getQuery()
+                ->getSingleScalarResult();
 
-                $entityManager->remove($user);
-                $entityManager->flush();
-                $this->addFlash('success', 'L\'utilisateur et son profil artiste ont été supprimés avec succès.');
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la suppression : '.$e->getMessage());
+            if ($adminCount <= 1) {
+                $this->addFlash('error', 'Vous ne pouvez pas supprimer le dernier administrateur du système.');
+                return $this->redirectToRoute('app_admin_user_index');
             }
-        } else {
+        }
+
+        if (!$this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_admin_user_index');
+        }
+
+        try {
+            // Supprimer le profil artiste associé s'il existe
+            $artistRepo = $entityManager->getRepository(Artist::class);
+            $artist = $artistRepo->findOneBy(['user' => $user]);
+            if ($artist) {
+                $entityManager->remove($artist);
+            }
+
+            $entityManager->remove($user);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'L\'utilisateur et son profil artiste ont été supprimés avec succès.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Une erreur est survenue lors de la suppression : '.$e->getMessage());
         }
 
         return $this->redirectToRoute('app_admin_user_index');
